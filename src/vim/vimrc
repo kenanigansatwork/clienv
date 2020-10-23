@@ -1,0 +1,12 @@
+" USER VIM CONFIG
+" ~/.vim/vimrc
+
+syntax on
+colorscheme industry
+set tabstop=4 shiftwidth=4 softtabstop=4
+set expandtab
+set autoindent
+set number
+set ruler
+set modeline modelines=2
+set foldmethod=indent
