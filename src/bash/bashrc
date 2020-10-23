@@ -7,8 +7,17 @@
     function _err () {
         local msg header;
         msg="${*:-"an unspecified error occurred"}";
-        header="ERROR";
-        printf '  %s[ %s ]%s: %s\n' "${CLR_ERR_HEADER}" "${header}" "${CLR_RST}" "${msg}" >&2;
+        header=" ERROR ";
+        printf '  %s[ %s ]%s: %s%s%s\n' \
+            "${CLR_ERR_HEADER}" "${header}" "${CLR_RST}" \
+            "${CLR_ERR_TXT}" "${msg}" "${CLR_RST}" >&2;
+        return 0
+    }
+    function _success () {
+        local msg header;
+        msg="${*:?}";
+        header="SUCCESS";
+        printf '  %s[ %s ]%s: %s\n' "${CLR_SUCCESS_HEADER}" "${header}" "${CLR_RST}" "${msg}" >&2;
         return 0
     }
     function _isMac () { if [[ "$(uname)" == 'Darwin' ]]; then return 0; fi; return 1; }
