@@ -164,8 +164,7 @@
 
 { # USER ALIASES
 
-    _isMac && alias ls='ls -Gtx' \
-        || alias ls='ls --color=auto'
+    _isMac && alias ls='ls -hGTtx' || alias ls='ls --color=auto'
 
     alias la='ls -A'
     alias ll='ls -og'
