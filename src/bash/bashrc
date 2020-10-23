@@ -9,6 +9,13 @@
     export CLR_ERR_HEADER=$'\033[41;37;1m'
     export CLR_ERR_TXT=$'\033[31;1m'
     export CLR_RST=$'\033[00m'
+
+    if [[ -z "${DEBUG_LEVEL:-}" ]]; then
+        declare -ix DEBUG_LEVEL
+        DEBUG_LEVEL=-2
+    fi
+    (( DEBUG_LEVEL > -2 )) && printf '[DEBUG_LEVEL: %d]\n' "${DEBUG_LEVEL}"
+
     function _err () {
         local msg header;
         msg="${*:-"an unspecified error occurred"}";
