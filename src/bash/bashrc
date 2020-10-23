@@ -1,0 +1,54 @@
+# ~/.bashrc
+# shellcheck shell=bash
+
+{ # helper variables and functions
+    export CLR_ERR_HEADER=$'\033[41;37;1m'
+    export CLR_RST=$'\033[00m'
+    function _err () {
+        local msg header;
+        msg="${*:-"an unspecified error occurred"}";
+        header="ERROR";
+        printf '  %s[ %s ]%s: %s\n' "${CLR_ERR_HEADER}" "${header}" "${CLR_RST}" "${msg}" >&2;
+        return 0
+    }
+    function _isMac () { if [[ "$(uname)" == 'Darwin' ]]; then return 0; fi; return 1; }
+    function _hasCommand () { local TARGET; TARGET="${1:?}"; if command -v "${TARGET}" &> /dev/null; then return 0; fi; return 1; }
+
+    if _isMac && _hasCommand system_profiler; then
+        function _sysinfo () 
+        { 
+            local -i DEBUG; DEBUG=0;
+            if [[ "${1:-}" =~ (-|--)?(D|DEBUG|debug)$ ]];
+            then
+                DEBUG=1; shift 1;
+            fi;
+            tmpfile="$(mktemp)";
+            builtin trap '(( DEBUG == 1 )) && /usr/bin/printf "removing temp file (${tmpfile})... "; if /bin/rm "${tmpfile}"; then (( DEBUG == 1 )) && /bin/echo SUCCESS; else (( DEBUG == 1 )) && /bin/echo FAILED; fi;' RETURN;
+            (( DEBUG == 1 )) && /usr/bin/printf '\n  > [DEBUG]: TEMPFILE -- %s\n\n' "${tmpfile}";
+            /usr/sbin/system_profiler -detailLevel mini -xml SPSoftwareDataType > "${tmpfile}";
+            /usr/bin/plutil -p "${tmpfile}" | /usr/bin/sed -n '/^[[:blank:]]*"_name"/,/^[[:blank:]]*"uptime"/p' | /usr/bin/tr -d '"' | /usr/bin/sed 's/^[[:blank:]][[:blank:]]*_*\([^[:blank:]]*\)  *=>  *\(.*$\)/\1|\2/' | /usr/bin/awk -F"|" 'BEGIN{printf "\nSYSTEM INFO:\n"}{printf ("- %*s %s\n",-15,$1":",$2)}';
+            builtin echo;
+            return
+        }
+    fi
+}
+
+{ # USER ALIASES
+
+    _isMac && alias ls='ls -Gtx' \
+        || alias ls='ls --color=auto'
+
+    alias la='ls -A'
+    alias ll='ls -og'
+    alias lla='ls -ogA'
+    alias l1='ls -1'
+    alias lm='ls -m'
+    alias l.='ls -d .[^$.]* 2> /dev/null'
+    alias ll.='ls -ogd .[^$.]* 2> /dev/null'
+    alias l1.='ls -1d .[^$.]* 2> /dev/null'
+    alias lm.='ls -md .[^$.]* 2> /dev/null'
+
+    alias c='clear'
+    alias x='exit'
+    alias sbash='[ -r ~/.bash_profile ] && . ~/.bash_profile'
+}
