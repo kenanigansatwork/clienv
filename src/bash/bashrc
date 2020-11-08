@@ -73,6 +73,12 @@
         export PATH="${PATH:+"${PATH}:"}/usr/local/sbin"
     fi
 
+    if [[ -d "${HOME}/bin" ]] \
+        && ! echo "${PATH}" |  grep -q "${HOME}/bin"
+    then
+        export PATH="${HOME}/bin${PATH:+":${PATH}"}"
+    fi
+
     { # SET PROMPT VARIABLE (PS1)
 
         if echo "$(hostname)" |  grep -q 'a2plcpnl0845';
