@@ -152,6 +152,10 @@
                 validateAndSetLocationVariables "uetc" /usr/local/etc
                 validateAndSetLocationVariables "uetc2" /usr/local/etcc
                 validateAndSetLocationVariables "uetc" /usr/local/
+            elif [[ "$(uname)" == 'Linux' ]]
+            then
+                validateAndSetLocationVariables "repos" ~/repos
+                validateAndSetLocationVariables "www" ~/public_html
             fi
         }
 
@@ -186,9 +190,17 @@
     alias x='exit'
     alias sbash='[ -r ~/.bash_profile ] && . ~/.bash_profile'
 
-    alias grep='/usr/bin/grep --color=auto'
-    alias egrep='/usr/bin/egrep --color=auto'
-    alias fgrep='/usr/bin/fgrep --color=auto'
+    if _isMac;
+    then
+        alias grep='/usr/bin/grep --color=auto'
+        alias egrep='/usr/bin/egrep --color=auto'
+        alias fgrep='/usr/bin/fgrep --color=auto'
+    elif [[ "$(uname)" == 'Linux' ]]
+    then
+        alias grep='/bin/grep --color=auto'
+        alias egrep='/bin/egrep --color=auto'
+        alias fgrep='/bin/fgrep --color=auto'
+    fi
 
     alias mkdir='mkdir -p'
 
