@@ -259,16 +259,24 @@ function hr () {
 
 function funcs () {
 
-    declare -F | sed -E 's/^declare -[a-z0-1A-Z]+ //' | sort \
-        | column \
-        | sed -E -e '1i\
-            \
-            FUNCTIONS:\
-            \
-            ' \
-            -e '$a\
-            \
-            ' \
-        | sed 's/^/	/';
-    return
+    local -a FUNCNAMES; FUNCNAMES=( $(declare -F | sed -E 's/^declare -[a-z0-1A-Z]+ //' | sort \
+        | grep -v '^shell_session_') );
+    local -a sysfuncnames userfuncnames;
+    sysfuncnames=( $(echo "${FUNCNAMES[@]}" | xargs -n1  echo | grep '^_') );
+    userfuncnames=( $(echo "${FUNCNAMES[@]}" | xargs -n1 echo | grep -v '^_') );
+
+    hr -d'-'
+    {
+        echo -e "\\n\\033[46;37;1m FUNCTIONS: \\033[00;00;0m";
+        echo -e "\\n[36m sys:[00m\\n${sysfuncnames[*]}";
+        echo -e "\\n[36m user:[00m";
+        echo "${userfuncnames[@]}" | xargs -n1 echo | nl \
+            | trim \
+            | tr '\t' ' ' | tr -s ' ';
+        echo;
+    } \
+        | sed -E -e 's/^/   /';
+    hr -d'-';
+    return;
+}
 }
