@@ -3,7 +3,7 @@
 
 { # helper variables and functions
 
-    [[ ! -e ~/.hushlogin ]] && > ~/.hushlogin
+    [[ ! -e ~/.hushlogin ]] && echo -n > ~/.hushlogin
 
     export CLR_SUCCESS_HEADER=$'\033[42;37;1m'
     export CLR_ERR_HEADER=$'\033[41;37;1m'
@@ -169,6 +169,7 @@
 
 { # USER ALIASES
 
+    #shellcheck disable=2015
     _isMac && alias ls='ls -hGTtx' || alias ls='ls --color=auto'
 
     alias la='ls -A'
@@ -280,6 +281,7 @@ function funcs () {
     return;
 }
 
+#shellcheck disable=2120
 function trim () {
     local INPUT;
     if [[ -p /dev/stdin ]];
@@ -313,6 +315,7 @@ then
         do
             lvl_output="$(shellcheck -xa "${TARGET}" -f gcc -S "${l}" | grep -v '^[[:blank:]]*$')";
             local -i output_count;
+            #shellcheck disable=2126
             output_count=$(echo "${lvl_output}" | grep -v '^[[:blank:]]*$' | wc -l | tr -dc '0-9');
             printf '\t%8s: %s\n' "${l}" "${output_count}";
             if (( output_count == 0 )); then
