@@ -80,7 +80,7 @@
                 # set root prompt
                 export PS1=$'\[\e[41;37;1m\]\u@kenanigans:\W\[\e[00;00;0m\]-\[\e[40;36;1m\]\#\[\e[00;00;0m\]\$ '
             else
-                export PS1=$'[\[\e[47;34;1m\] \u@kenanigans \[\e[00;00;0m\]:\[\e[40;33;1m\]\W\[\e[00;00;0m\]] \e[40;36;1m\]\#\[\e[00;00;0m\] \$ '
+                export PS1=$'[\[\e[46;37;1m\] \u@kenanigans \[\e[00;00;0m\]:\[\e[40;33;1m\]\W\[\e[00;00;0m\]] \e[40;36;1m\]\#\[\e[00;00;0m\] \$ '
             fi
         else
             if ((EUID == 0)); then
