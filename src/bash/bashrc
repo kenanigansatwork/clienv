@@ -67,7 +67,8 @@
     export LESSHISTSIZE=10000
     export EDITOR='vim'
 
-    if ! echo "$PATH" | grep -q "/usr/local/sbin"
+    if [[ -d /usr/local/sbin ]] \
+        && ! echo "$PATH" | grep -q "/usr/local/sbin"
     then
         export PATH="${PATH:+"${PATH}:"}/usr/local/sbin"
     fi
@@ -158,13 +159,17 @@
                 validateAndSetLocationVariables "proj" ~/Projects
                 validateAndSetLocationVariables "var" /private/var
                 validateAndSetLocationVariables "etc" /private/etc
-                validateAndSetLocationVariables "uvar" /usr/local/var
-                validateAndSetLocationVariables "uetc" /usr/local/etc
-                validateAndSetLocationVariables "uetc2" /usr/local/etcc
-                validateAndSetLocationVariables "uetc" /usr/local/
+                if [[ -d /usr/local ]];
+                then
+                    validateAndSetLocationVariables "uvar" /usr/local/var
+                    validateAndSetLocationVariables "uetc" /usr/local/etc
+                    validateAndSetLocationVariables "uetc2" /usr/local/etcc
+                    validateAndSetLocationVariables "uetc" /usr/local/
+                fi
             elif [[ "$(uname)" == 'Linux' ]]
             then
                 validateAndSetLocationVariables "repos" ~/repos
+                validateAndSetLocationVariables "clienv" ~/repos/clienv
                 validateAndSetLocationVariables "www" ~/public_html
             fi
         }
