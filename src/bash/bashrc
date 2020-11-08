@@ -301,3 +301,37 @@ function trim () {
     echo -e "${OUTPUT}";
     return;
 }
+
+if command -v shellcheck &> /dev/null;
+then
+    function sch () { 
+        local TARGET;
+        TARGET="${1:?no target file given}";
+        local -a LVL;
+        LVL=('error' 'warning' 'info' 'style');
+        for l in "${LVL[@]}";
+        do
+            lvl_output="$(shellcheck -xa "${TARGET}" -f gcc -S "${l}" | grep -v '^[[:blank:]]*$')";
+            local -i output_count;
+            output_count=$(echo "${lvl_output}" | grep -v '^[[:blank:]]*$' | wc -l | tr -dc '0-9');
+            printf '\t%8s: %s\n' "${l}" "${output_count}";
+            if (( output_count == 0 )); then
+                printf '<NONE>\n';
+            else
+                echo "${lvl_output}";
+            fi;
+        done;
+        return;
+        echo;
+        __build_hdr_str "ERROR";
+        shellcheck -xa "${TARGET}" -f gcc -S error;
+        __build_hdr_str "WARNING";
+        shellcheck -xa "${TARGET}" -f gcc -S warning;
+        __build_hdr_str "INFO";
+        shellcheck -xa "${TARGET}" -f gcc -S info;
+        __build_hdr_str "STYLE";
+        shellcheck -xa "${TARGET}" -f gcc -S style;
+        echo;
+        return;
+    }
+fi
