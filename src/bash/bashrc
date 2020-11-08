@@ -279,4 +279,25 @@ function funcs () {
     hr -d'-';
     return;
 }
+
+function trim () {
+    local INPUT;
+    if [[ -p /dev/stdin ]];
+    then
+        INPUT="$(cat /dev/stdin)";
+        [[ -z "${INPUT}" ]] && return 11;
+    elif (($#>0));
+    then
+        INPUT="${*:?ERROR, no input detected}";
+    fi
+
+    ## INPUT verified
+    local OUTPUT;
+    OUTPUT="$(echo "${INPUT}" \
+        | sed -E -e 's/^[[:blank:]]*//' \
+            -e 's/[[:blank:]]*$//')" \
+     || return 12;
+    [[ -z "${OUTPUT:-}" ]] && return 13;
+    echo -e "${OUTPUT}";
+    return;
 }
