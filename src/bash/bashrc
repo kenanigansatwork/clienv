@@ -256,3 +256,19 @@ function hr () {
     printf '%s\n' "${hrstr}"
     return
 }
+
+function funcs () {
+
+    declare -F | sed -E 's/^declare -[a-z0-1A-Z]+ //' | sort \
+        | column \
+        | sed -E -e '1i\
+            \
+            FUNCTIONS:\
+            \
+            ' \
+            -e '$a\
+            \
+            ' \
+        | sed 's/^/	/';
+    return
+}
