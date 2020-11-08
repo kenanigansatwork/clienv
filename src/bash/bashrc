@@ -259,11 +259,11 @@ function hr () {
 
 function funcs () {
 
-    local -a FUNCNAMES; FUNCNAMES=( $(declare -F | sed -E 's/^declare -[a-z0-1A-Z]+ //' | sort \
-        | grep -v '^shell_session_') );
-    local -a sysfuncnames userfuncnames;
-    sysfuncnames=( $(echo "${FUNCNAMES[@]}" | xargs -n1  echo | grep '^_') );
-    userfuncnames=( $(echo "${FUNCNAMES[@]}" | xargs -n1 echo | grep -v '^_') );
+    #shellcheck disable=2207
+    declare -F | sed -E 's/^declare -[a-z0-1A-Z]+ //' | sort | grep -v '^shell_session_'
+    mapfile FUNCNAMES < <(declare -F | sed -E 's/^declare -[a-z0-1A-Z]+ //' | sort | grep -v '^shell_session_');
+    mapfile sysfuncnames < <(echo "${FUNCNAMES[@]}" | xargs -n1  echo | grep '^_');
+    mapfile userfuncnames < <(echo "${FUNCNAMES[@]}" | xargs -n1  echo | grep -v '^_');
 
     hr -d'-'
     {
