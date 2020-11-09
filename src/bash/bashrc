@@ -459,6 +459,49 @@ function paths () {
 }
 
 function clienv () {
+
+    # handle option flags
+    local -i OPTIND; OPTIND=1;
+    # -b: specify to list bash init files
+
+    while getopts :bna OPT;
+    do
+        case "${OPT}" in
+            a)
+                # list all src files
+                find $clienv/src -type f \
+                    | sed 's/^.*\(clienv\)/\1/';
+                return;
+            ;;
+            b)
+                command grep '/usr/bin/env bash' $(find $clienv/src -type f) \
+                    | sed 's/^\(.*\):.*$/\1/' | sort | uniq \
+                    | sed 's/^.*\(clienv\)/\1/';
+                return;
+            ;;
+            n)
+                # list files not part of bash
+                while IFS= read -r FILEPATH;
+                do
+                    if ! grep -q '/usr/bin/env bash' "${FILEPATH}";
+                    then
+                        echo "${FILEPATH}";
+                    fi
+                done < <(find $clienv/src -type f) \
+                    | sed 's/^.*\(clienv\)/\1/';
+                return;
+            ;;
+            :)
+                _err "option flag requires an argument -- \`${OPTARG}'";
+            ;;
+            *)
+                _err "invalid flag -- ${OPTARG}";
+            ;;
+        esac
+    done
+    shift $((OPTIND-1));
+
+    # validate location var
     [[ -z "${clienv:-}" ]] && return 11;
     [[ -d "${clienv}" ]] || return 12;
     if ! cd "${clienv}";
