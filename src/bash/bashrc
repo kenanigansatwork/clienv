@@ -17,14 +17,90 @@
     (( DEBUG_LEVEL > -2 )) && printf '[DEBUG_LEVEL: %d]\n' "${DEBUG_LEVEL}"
 
     function _err () {
+        local -i OPTIND; OPTIND=1
+        local headerStr; headerStr='ERROR';
+        while getopts :h: OPT; do
+            case "${OPT}" in
+                h) headerStr="${OPTARG}";;
+                :) _err "flag requires an argument -- \`${OPTARG}'";;
+                *) _err "invalid option flag -- \`${OPTARG}'";;
+            esac
+        done
+        shift $((OPTIND-1));
+
         local msg header;
         msg="${*:-"an unspecified error occurred"}";
-        header=" ERROR ";
-        printf '  %s[ %s ]%s: %s%s%s\n' \
-            "${CLR_ERR_HEADER}" "${header}" "${CLR_RST}" \
-            "${CLR_ERR_TXT}" "${msg}" "${CLR_RST}" >&2;
+        header=" ${headerStr} ";
+        printf ' %s%s%s %s%s%s\n' \
+            "${CLR_ERR_HEADER}" \
+            "${header}" \
+            "${CLR_RST}" \
+            "${CLR_ERR_TXT}" \
+            "${msg}" \
+            "${CLR_RST}" >&2;
         return 0
     }
+
+    function _msg () {
+        local -i leadingLine trailingLine OPTIND;
+        OPTIND=1
+        leadingLine=0;  # will prepend line if == 1
+        trailingLine=0;  # will append line if == 1
+
+        # handle options
+        while getopts :l: OPT;
+        do
+            case "${OPT}" in
+                l)
+                    # lines
+                    case "${OPTARG}" in
+                        p|pre|prepend) leadingLine=1;;
+                        a|append) trailingLine=1;;
+                        b|both) leadingLine=1; trailingLine=1;;
+                        *) return 222;;
+                    esac
+                ;;
+                :)
+                    echo FUCK;
+                    case "${OPTARG}" in
+                        l)
+                            # `l' flag without arguments: assume both is specified
+                            leadingLine=1; trailingLine=1;
+                        ;;
+                        *) return 223;;
+                    esac
+                ;;
+                *)
+                ;;
+            esac
+        done
+        shift $((OPTIND-1));
+
+        local msg header headerStr;
+        headerStr="[clienv]"
+        msg="${*:?}";
+        header="${headerStr}";
+        local OUTPUT;
+        OUTPUT='';
+        OUTPUT+="${CLR_MSG_HEADER} ${header} ${CLR_RST}";
+        OUTPUT+="${CLR_MSG_TXT} ${msg} ${CLR_RST}";
+
+        if (( leadingLine ==1 ))
+        then OUTPUT='\n'"${OUTPUT}";
+        fi
+
+        if (( trailingLine ==1 ))
+        then OUTPUT+='\n'
+        fi
+
+        #printf '  %s %s %s: %s%s%s\n' \
+            #"${CLR_MSG_HEADER}" "${header}" "${CLR_RST}" \
+            #"${CLR_MSG_TXT}" "${msg}" "${CLR_RST}" >&2;
+
+        echo -e "${OUTPUT:?"ERR"}"
+        return 0
+    }
+
     function _success () {
         local msg header;
         msg="${*:?}";
