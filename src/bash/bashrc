@@ -133,6 +133,15 @@
     fi
 }
 
+{ # set bash-git-prompt-config
+    declare bashgitprompt_file;
+    bashgitprompt_file="${clienv}/src/bash/bashrc.d/bash-git-prompt-config.sh"
+    if [[ -r "${bashgitprompt_file}" ]]
+    then
+        . "${bashgitprompt_file}"
+    fi
+}
+
 { # ENVIRONMENTAL VARIABLES
     _isMac && export GLOBIGNORE=.DS_Store:.CFUserTextEncoding:.localized:.hushlogin
     export CDPATH=.:~
