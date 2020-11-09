@@ -183,15 +183,19 @@
 
         function ps1_command() {
             local -ir xit=$?;
+
+            echo "\"\${xit}\"=${xit:-"(NULL)"}";
             if (( xit != 0 )); then
-                echo
-                _err "=> $(history 1 | sed 's:^[[:blank:]]*[0-9][0-9]*[[:blank:]]*\(.*$\):\1:')";
-                echo
+                builtin echo
+                _err \
+                    -h"ERROR (${xit}) [00;00;0m" \
+                    "[31m[last_command]:[00m [40;33m $(history 1 | sed 's:^[[:blank:]]*[0-9][0-9]*[[:blank:]]*\(.*$\):\1:') [00;00;0m";
+                builtin echo
             fi
             return ${xit}
         }
 
-        if ! echo "${PROMPT_COMMAND}" | grep -q 'ps1_command'; then
+        if ! builtin echo "${PROMPT_COMMAND}" | grep -q 'ps1_command'; then
             PROMPT_COMMAND='ps1_command'"${PROMPT_COMMAND:+";${PROMPT_COMMAND}"}"
         fi
 
