@@ -144,6 +144,11 @@
 
 { # ENVIRONMENTAL VARIABLES
     _isMac && export GLOBIGNORE=.DS_Store:.CFUserTextEncoding:.localized:.hushlogin
+    if [[ "$(uname)" == 'Linux' ]]
+    then
+        export PAGER=cat;
+    fi
+
     export CDPATH=.:~
     export LSCOLORS=$'Dxfxcxdxbxegedabagacad';      # default =. 'exfxcxdxbxegedabagacad'
     export HISTFILE=~/.bash_history
