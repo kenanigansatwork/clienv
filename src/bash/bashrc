@@ -351,9 +351,7 @@ then
             #shellcheck disable=2126
             output_count=$(echo "${lvl_output}" | grep -v '^[[:blank:]]*$' | wc -l | tr -dc '0-9');
             printf '\t%8s: %s\n' "${l}" "${output_count}";
-            if (( output_count == 0 )); then
-                printf '<NONE>\n';
-            else
+            if ! (( output_count == 0 )); then
                 echo "${lvl_output}";
             fi;
         done;
