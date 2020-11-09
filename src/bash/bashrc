@@ -479,3 +479,11 @@ function clienv () {
     git remote -v
     return
 }
+
+
+if _isMac; then
+    function kenanigans () {
+        ssh kenanigans
+        return
+    }
+fi
