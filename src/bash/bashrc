@@ -184,7 +184,6 @@
         function ps1_command() {
             local -ir xit=$?;
 
-            echo "\"\${xit}\"=${xit:-"(NULL)"}";
             if (( xit != 0 )); then
                 builtin echo
                 _err \
