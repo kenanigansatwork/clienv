@@ -504,24 +504,29 @@ function clienv () {
     # validate location var
     [[ -z "${clienv:-}" ]] && return 11;
     [[ -d "${clienv}" ]] || return 12;
+
     if ! cd "${clienv}";
-    then
-        _err "unable to move to \${clienv} directory -- ${clienv}"
+    then # ensure move into directory
+        _err "unable to move to \${clienv} directory -- ${clienv}";
         return 13;
-    fi
-    hr -d'-'
-    printf '\n  => PWD: %s\n' "$PWD"
-    #printf '%s\n\n  - \033[40;33;1mSTATUS\033[00m\n' "$(hr -d'-')"
-    hr
-    _msg "STATUS:"
-    git status
-    #printf '%s\n\n  - \033[40;33;1mBranches\033[00m\n'  "$(hr -d'-')"
-    _msg "BRANCHES:"
-    git branch -a
-    #printf '%s\n\n  - \033[40;33;1mRemotes\033[00m\n' "$(hr -d'-')"
-    _msg "REMOTES:"
-    git remote -v
-    return
+    fi;
+
+    { # output report
+        hr -d'-';
+        printf '\n  => PWD: %s\n' "$PWD"
+        hr;
+        _msg "STATUS:";
+        git status;
+        hr;
+        _msg "BRANCHES:";
+        git branch -a;
+        hr;
+        _msg "REMOTES:";
+        git remote -v;
+        hr;
+    }
+
+    return;
 }
 
 
