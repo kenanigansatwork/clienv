@@ -172,6 +172,9 @@
         export PATH="${HOME}/bin${PATH:+":${PATH}"}"
     fi
 
+    # DE-DUPE $PATH
+    export PATH="$(echo -e "${PATH//:/\\n}" | uniq | tr '\n' ':' | sed 's/:$//')"
+
     { # SET PROMPT VARIABLE (PS1)
 
         if hostname | grep -q 'a2plcpnl0845';
@@ -323,6 +326,8 @@
         alias fgrep='/bin/fgrep --color=auto'
     fi
 
+
+    #alias trunc='cut -c1-${COLUMNS:-$(tput cols)}';
     alias mkdir='mkdir -p'
 
 }
@@ -552,5 +557,28 @@ if _isMac; then
     function kenanigans () {
         ssh kenanigans
         return
+    }
+fi
+
+
+if ! alias trunc &> /dev/null; then
+    function trunc () {
+        local INPUT;
+        INPUT='';
+        if [[ -p /dev/stdin ]];
+        then
+            INPUT="$(cat /dev/stdin)";
+            [[ -z "${INPUT}" ]] && return 11;
+        elif (($#>0));
+        then
+            INPUT="${*:?ERROR, no input detected}";
+        fi
+
+        ## INPUT verified
+        local OUTPUT;
+        OUTPUT="$(builtin echo "${INPUT}" | cut -c1-${COLUMNS:-$(tput cols)})"
+        [[ -z "${OUTPUT:-}" ]] && return 13;
+        builtin echo -e "${OUTPUT}";
+        return;
     }
 fi
