@@ -314,6 +314,8 @@
         alias grep='/usr/bin/grep --color=auto'
         alias egrep='/usr/bin/egrep --color=auto'
         alias fgrep='/usr/bin/fgrep --color=auto'
+
+        alias appstore='open -a "App Store"';
     elif [[ "$(uname)" == 'Linux' ]]
     then
         alias grep='/bin/grep --color=auto'
