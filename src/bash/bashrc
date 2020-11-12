@@ -172,6 +172,9 @@
         export PATH="${HOME}/bin${PATH:+":${PATH}"}"
     fi
 
+    # DE-DUPE $PATH
+    export PATH="$(echo -e "${PATH//:/\\n}" | uniq | tr '\n' ':' | sed 's/:$//')"
+
     { # SET PROMPT VARIABLE (PS1)
 
         if hostname | grep -q 'a2plcpnl0845';
