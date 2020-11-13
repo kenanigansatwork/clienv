@@ -476,8 +476,61 @@ then
 fi
 
 function paths () {
-    builtin echo -e "${PATH//:/\\n}" \
-        | nl
+    _output_path () {
+        echo "PATH: ${PATH}"
+        return
+    }
+
+    _raw_list () {
+        builtin echo -e "${PATH//:/\\n}"
+        return
+    }
+
+    _numbered_list () {
+        _raw_list \
+            | nl
+        return
+    }
+
+    _list_verbose() {
+        hr
+        _output_path
+        printf '\n  %s:\n\n%s\n\n' \
+            "PATHS" \
+            "$(_numbered_list)"
+        hr
+        return
+    }
+
+    local -i OPTIND; OPTIND=1
+    while getopts :rnbv OPT; do
+        case "${OPT}" in
+            v) #verbose
+                _list_verbose
+                return
+            ;;
+            b) #basic
+                _output_path
+                return
+            ;;
+            r) #list raw
+                _raw_list
+                return
+            ;;
+            n) #list numbered
+                _numbered_list
+                return
+            ;;
+            :)
+                _err "invalid flag -- ${OPTARG}"
+                return 1
+            ;;
+        esac
+    done
+    shift $((OPTIND=1))
+
+    #_numbered_list
+    _list_verbose
     return
 }
 
