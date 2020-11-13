@@ -590,3 +590,39 @@ if ! alias trunc &> /dev/null; then
         return;
     }
 fi
+
+if _isMac; then
+    # make trash function
+    trash () {
+        local TRASH_DIR
+        TRASH_DIR=~/.Trash
+        [[ ! -d "${TRASH_DIR}" ]] && return 202;
+
+        _list_trash_directory_status () {
+            local SIZE
+            SIZE="$(echo \
+        "$(echo "scale=2; $(( $(du -s ~/Movies | tr -dc '0-9') * 512 ))/1000/1000" | bc) MB")";
+            if [[ "${SIZE:0:1}" =~ ^\.$ ]]; then SIZE="0${SIZE}"; fi
+            echo "TRASH SIZE: ${SIZE}"
+            return
+        }
+
+        local -i OPTIND; OPTIND=1
+        while getopts :s OPT; do
+            case "${OPT}" in
+                s)
+                    _list_trash_directory_status
+                    echo facek
+                    return
+                ;;
+                *)
+                    _err "invalid flag -- ${OPTARG}"
+                ;;
+            esac
+        done
+
+        _list_trash_directory_status
+
+        return
+    }
+fi
