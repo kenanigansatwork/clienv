@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # ~/.bashrc
+
 # shellcheck shell=bash
 
 { # helper variables and functions
@@ -254,9 +255,11 @@
 
         { # set location variables here
             (( DEBUG_LEVEL >= 0 )) && printf '\n  [%s] => %s\n\n' 'clienv' 'setting location variables';
+
             if _isMac; then
                 validateAndSetLocationVariables "clienv" ~/Desktop/clienv
                 validateAndSetLocationVariables "dev" ~/Developer
+                validateAndSetLocationVariables "scripts" ~/Developer/scripts
                 validateAndSetLocationVariables "repos" ~/Developer/repos
                 validateAndSetLocationVariables "desk" ~/Desktop
                 validateAndSetLocationVariables "docs" ~/Documentssssss
@@ -329,6 +332,11 @@
 
     #alias trunc='cut -c1-${COLUMNS:-$(tput cols)}';
     alias mkdir='mkdir -p'
+
+    if [[ -x "/System/Library/PrivateFrameworks/Apple80211.framework/Versions/A/Resources/airport" ]]
+    then
+        alias airport='/System/Library/PrivateFrameworks/Apple80211.framework/Versions/A/Resources/airport'
+    fi
 
 }
 
@@ -633,5 +641,41 @@ if ! alias trunc &> /dev/null; then
         [[ -z "${OUTPUT:-}" ]] && return 13;
         builtin echo -e "${OUTPUT}";
         return;
+    }
+fi
+
+if _isMac; then
+    # make trash function
+    trash () {
+        local TRASH_DIR
+        TRASH_DIR=~/.Trash
+        [[ ! -d "${TRASH_DIR}" ]] && return 202;
+
+        _list_trash_directory_status () {
+            local SIZE
+            SIZE="$(echo \
+        "$(echo "scale=2; $(( $(du -s ~/Movies | tr -dc '0-9') * 512 ))/1000/1000" | bc) MB")";
+            if [[ "${SIZE:0:1}" =~ ^\.$ ]]; then SIZE="0${SIZE}"; fi
+            echo "TRASH SIZE: ${SIZE}"
+            return
+        }
+
+        local -i OPTIND; OPTIND=1
+        while getopts :s OPT; do
+            case "${OPT}" in
+                s)
+                    _list_trash_directory_status
+                    echo facek
+                    return
+                ;;
+                *)
+                    _err "invalid flag -- ${OPTARG}"
+                ;;
+            esac
+        done
+
+        _list_trash_directory_status
+
+        return
     }
 fi
