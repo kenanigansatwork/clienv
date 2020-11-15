@@ -678,6 +678,10 @@ if _isMac; then
 
         return
     }
+
+    beep () {
+        local -i count; count=${1:-1}
+        osascript -e "beep ${count}"
+        return
+    }
 fi
-
-
