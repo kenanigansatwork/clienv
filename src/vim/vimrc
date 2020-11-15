@@ -1,11 +1,30 @@
 " USER VIM CONFIG
 " ~/.vim/vimrc
 
-syntax on
-colorscheme slate
+" about: vim-plug (a plug-in manager)
+" https://github.com/junegunn/vim-plug
+"
+call plug#begin('~/.vim/plugged')
+"shorthand notation: any valid git URL is allowed
+"Plug 'https://github.com/junegunn/vim-github-dashboard.git'
+
+" * automatically executes `filetype plugin indent on` and `syntax enable`;
+"list plugins with Plug commands
+Plug 'sainnhe/edge'
+
+"call plug#end()
+call plug#end()
+
+"syntax on
+colorscheme spacecamp
+"colorscheme edge
+
+
+
 set tabstop=4 shiftwidth=4 softtabstop=4
 set expandtab
 set autoindent
 set number
 set ruler
 set modeline modelines=2
+
