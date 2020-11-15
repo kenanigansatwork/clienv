@@ -9,19 +9,19 @@ module.exports = {
     updateChannel: 'stable',
 
     // default font size in pixels for all tabs
-    fontSize: 18,
+    fontSize: 14,
 
     // font family with optional fallbacks
-    fontFamily: '"Ubunto Mono", "Source Code Pro", Menlo, "DejaVu Sans Mono", Consolas, "Lucida Console", monospace',
+    fontFamily: '"Roboto Mono", "Source Code Pro", "Ubunto Mono", Menlo, "DejaVu Sans Mono", Consolas, "Lucida Console", monospace',
 
     // default font weight: 'normal' or 'bold'
-    fontWeight: 400,
+    fontWeight: 200,
 
     // font weight for bold characters: 'normal' or 'bold'
     fontWeightBold: 800,
 
     // line height as a relative unit
-    lineHeight: 1.1,
+    lineHeight: 1.3,
 
     // letter spacing as a relative unit
     letterSpacing: 0,
@@ -43,7 +43,7 @@ module.exports = {
 
     // terminal background color
     // opacity is only supported on macOS
-    backgroundColor: 'rgba(10,10,10,1)',
+    backgroundColor: 'rgba(10,10,10,0.8)',
 
     // terminal selection color
     selectionColor: 'rgba(248,28,229,0.3)',
@@ -61,7 +61,7 @@ module.exports = {
     // default: `true` on Linux, `true` on Windows, ignored on macOS
     showHamburgerMenu: '',
 
-    // set to `false` (without backticks and without quotes) if you want to hide the minimize, maximize and close buttons
+    // set to `false` (without backticks and without qcuotes) if you want to hide the minimize, maximize and close buttons
     // additionally, set to `'left'` if you want them on the left, like in Ubuntu
     // default: `true` (without backticks and without quotes) on Windows and Linux, ignored on macOS
     showWindowControls: '',
