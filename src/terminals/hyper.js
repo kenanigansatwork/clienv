@@ -21,10 +21,10 @@ module.exports = {
     fontWeightBold: 800,
 
     // line height as a relative unit
-    lineHeight: 1.3,
+    lineHeight: 1.35,
 
     // letter spacing as a relative unit
-    letterSpacing: 0,
+    letterSpacing: 0.5,
 
     // terminal cursor background color and opacity (hex, rgb, hsl, hsv, hwb or cmyk)
     cursorColor: 'rgba(248,28,229,0.8)',
@@ -43,7 +43,7 @@ module.exports = {
 
     // terminal background color
     // opacity is only supported on macOS
-    backgroundColor: 'rgba(10,10,10,0.8)',
+    backgroundColor: 'rgba(10,10,10,0.85)',
 
     // terminal selection color
     selectionColor: 'rgba(248,28,229,0.3)',
