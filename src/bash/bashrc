@@ -151,7 +151,7 @@
     fi
 
     export CDPATH=.:~
-    export LSCOLORS=$'Dxfxcxdxbxegedabagacad';      # default =. 'exfxcxdxbxegedabagacad'
+    export LSCOLORS=$'Exfxcxdxbxegedabagacad';      # default =. 'exfxcxdxbxegedabagacad'
     export HISTFILE=~/.bash_history
     export HISTFILESIZE=100000
     export HISTSIZE=100000
