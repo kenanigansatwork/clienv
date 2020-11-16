@@ -9,10 +9,10 @@ module.exports = {
     updateChannel: 'stable',
 
     // default font size in pixels for all tabs
-    fontSize: 14,
+    fontSize: 16,
 
     // font family with optional fallbacks
-    fontFamily: '"Roboto Mono", "Source Code Pro", "Ubunto Mono", Menlo, "DejaVu Sans Mono", Consolas, "Lucida Console", monospace',
+    fontFamily: 'Menlo, "Roboto Mono", "Source Code Pro", "Ubunto Mono", "DejaVu Sans Mono", Consolas, "Lucida Console", monospace',
 
     // default font weight: 'normal' or 'bold'
     fontWeight: 200,
@@ -39,14 +39,14 @@ module.exports = {
     cursorBlink: false,
 
     // color of the text
-    foregroundColor: 'rgba(255,255,255,0.8)',
+    foregroundColor: 'rgba(255,255,255,1)',
 
     // terminal background color
     // opacity is only supported on macOS
     backgroundColor: 'rgba(10,10,10,0.85)',
 
     // terminal selection color
-    selectionColor: 'rgba(248,28,229,0.3)',
+    selectionColor: 'rgba(248,28,229,0.4)',
 
     // border color (window, tabs)
     borderColor: '#333',
