@@ -405,7 +405,8 @@ function hr () {
     for (( c = 0; c < $(( col - ${#text} - $((rtstrlength+2)) )); c++ )); do
         hrstr="${hrstr}${delim}"
     done
-    if [[ -n "${text:-}" ]]; then hrstr+="[${text}]"
+    #if [[ -n "${text:-}" ]]; then hrstr+="[${text}]"
+    if [[ -n "${text:-}" ]]; then hrstr+=" ${text} "
     else hrstr+="${delim}${delim}"
     fi
     for (( a = 0; a < rtstrlength; a++ )); do
