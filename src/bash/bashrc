@@ -145,7 +145,7 @@
 }
 
 { # ENVIRONMENTAL VARIABLES
-    _isMac && export GLOBIGNORE=.DS_Store:.CFUserTextEncoding:.localized:.hushlogin
+    _isMac && export GLOBIGNORE=.DS_Store:.CFUserTextEncoding:.localized:.hushlogin:.Trash:.viminfo:.zsh_history:.bash_history:.lesshst:.less_history:.node_repl_history:.gitconfig:.gitignore_global:.wget-hsts:.ssh:.bash_sessions:.mysql_history:.hushlogin
     if [[ "$(uname)" == 'Linux' ]]
     then
         export PAGER=cat;
@@ -302,7 +302,8 @@
 { # USER ALIASES
 
     #shellcheck disable=2015
-    _isMac && alias ls='ls -hGTtx' || alias ls='ls --color=auto'
+    _isMac && alias ls='ls -hGT' \
+        || alias ls='ls --color=auto'
 
     alias la='ls -A'
     alias ll='ls -og'
@@ -313,6 +314,7 @@
     alias ll.='ls -ogd .[^$.]* 2> /dev/null'
     alias l1.='ls -1d .[^$.]* 2> /dev/null'
     alias lm.='ls -md .[^$.]* 2> /dev/null'
+    alias lll.='ls -ogdL .[^$.]* 2> /dev/null'
 
     alias c='clear'
     alias x='exit'
