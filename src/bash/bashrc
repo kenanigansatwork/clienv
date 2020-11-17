@@ -136,9 +136,10 @@
 
 { # set bash-git-prompt-config
     declare bashgitprompt_file;
-    bashgitprompt_file="${clienv}/src/bash/bashrc.d/bash-git-prompt-config.sh"
+    bashgitprompt_file="${clienv:?}/src/bash/bashrc.d/bash-git-prompt-config.sh"
     if [[ -r "${bashgitprompt_file}" ]]
     then
+        #shellcheck disable=1090
         . "${bashgitprompt_file}"
     fi
 }
@@ -174,6 +175,7 @@
     fi
 
     # DE-DUPE $PATH
+    #shellcheck disable=2155
     export PATH="$(echo -e "${PATH//:/\\n}" | uniq | tr '\n' ':' | sed 's/:$//')"
 
     { # SET PROMPT VARIABLE (PS1)
@@ -576,7 +578,8 @@ function paths () {
     }
 
     local -i OPTIND; OPTIND=1
-    while getopts :rnbv OPT; do
+    while getopts :rnbv OPT;
+    do
         case "${OPT}" in
             v) #verbose
                 _list_verbose
@@ -595,6 +598,10 @@ function paths () {
                 return
             ;;
             :)
+                _err "flag requires an argument -- ${OPTARG}"
+                return 1
+            ;;
+            *)
                 _err "invalid flag -- ${OPTARG}"
                 return 1
             ;;
@@ -618,11 +625,12 @@ function clienv () {
         case "${OPT}" in
             a)
                 # list all src files
-                find $clienv/src -type f \
+                find "$clienv/src" -type f \
                     | sed 's/^.*\(clienv\)/\1/';
                 return;
             ;;
             b)
+                #shellcheck disable=2046,2086
                 command grep '/usr/bin/env bash' $(find $clienv/src -type f) \
                     | sed 's/^\(.*\):.*$/\1/' | sort | uniq \
                     | sed 's/^.*\(clienv\)/\1/';
@@ -636,7 +644,7 @@ function clienv () {
                     then
                         echo "${FILEPATH}";
                     fi
-                done < <(find $clienv/src -type f) \
+                done < <(find "$clienv/src" -type f) \
                     | sed 's/^.*\(clienv\)/\1/';
                 return;
             ;;
@@ -718,6 +726,7 @@ if _isMac; then
 
         _list_trash_directory_status () {
             local SIZE
+            #shellcheck disable=2116
             SIZE="$(echo \
         "$(echo "scale=2; $(( $(du -s ~/Movies | tr -dc '0-9') * 512 ))/1000/1000" | bc) MB")";
             if [[ "${SIZE:0:1}" =~ ^\.$ ]]; then SIZE="0${SIZE}"; fi
