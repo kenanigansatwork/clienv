@@ -316,6 +316,10 @@
     alias x='exit'
     alias sbash='[ -r ~/.bash_profile ] && . ~/.bash_profile'
 
+    alias shutdown='sudo command shutdown -h now'
+    alias shutdownh='sudo command shutdown -h now'
+    alias shutdownr='sudo command shutdown -r now'
+
     if _isMac;
     then
         alias grep='/usr/bin/grep --color=auto'
