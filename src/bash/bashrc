@@ -759,16 +759,16 @@ if _isMac; then
         return
     }
 
-    clear ()
-    {
-        function _clear ()
-        {
-            /usr/bin/clear;
-            return
-        };
-        _clear;
-        /usr/bin/printf '%s\n\n' "$(hr -h "$(/usr/bin/printf '%s@%s' "${USER}" "$(/bin/hostname)")")";
-        return
-    }
+#    clear ()
+#    {
+#        function _clear ()
+#        {
+#            /usr/bin/clear;
+#            return
+#        };
+#        _clear;
+#        /usr/bin/printf '%s\n\n' "$(hr -h "$(/usr/bin/printf '%s@%s' "${USER}" "$(/bin/hostname)")")";
+#        return
+#    }
 
 fi
