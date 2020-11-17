@@ -134,6 +134,82 @@
     fi
 }
 
+{ # LOCATION VARIABLES
+    if [[ -n "${_location_variables[*]}" ]]; then
+        # unset all location variables
+        for key in "${!_location_variables[@]}"; do
+            unset "${key}"
+        done
+    fi
+    unset _location_variables
+    
+    declare -A _location_variables; _location_variables=()
+    declare -A _location_variable_errors; _location_variable_errors=()
+
+    function validateAndSetLocationVariables() {
+        local NAME DIR;
+        NAME="${1:?}" DIR="${2:?}"
+        if [[ ! -d "${DIR}" ]]; then
+            _location_variable_errors["${NAME}"]="${DIR}"
+            (( DEBUG_LEVEL >= -1 )) && _err "unable to set variable. directory not found -- ${DIR}"
+            return 1
+        fi
+        if [[ -n "${!NAME:-}" ]]; then
+            _location_variable_errors["${NAME}"]="${DIR}"
+            (( DEBUG_LEVEL >= 0 )) && _err "name has already been set previously -- ${!NAME}"
+            return 2
+        fi
+        eval "${NAME}=\"${DIR}\""
+        if [[ -n "${!NAME}" && "${!NAME}" == "${DIR}" ]]; then
+            _location_variables["${NAME}"]="${DIR}"
+            (( DEBUG_LEVEL == 1 )) && _success "${NAME} => ${!NAME}"
+        fi
+    }
+
+    { # set location variables here
+        (( DEBUG_LEVEL >= 0 )) && printf '\n  [%s] => %s\n\n' 'clienv' 'setting location variables';
+
+        if _isMac; then
+            validateAndSetLocationVariables "clienv" ~/Developer/repos/clienv
+            validateAndSetLocationVariables "clienvbash" ~/Developer/repos/clienv/src/bash
+            validateAndSetLocationVariables "dev" ~/Developer
+            validateAndSetLocationVariables "scripts" ~/Developer/scripts
+            validateAndSetLocationVariables "shellscripts" ~/Developer/scripts/shell-scripts
+            validateAndSetLocationVariables "repos" ~/Developer/repos
+            validateAndSetLocationVariables "desk" ~/Desktop
+            validateAndSetLocationVariables "docs" ~/Documentssssss
+            validateAndSetLocationVariables "dl" ~/Downloads
+            validateAndSetLocationVariables "sites" ~/Sites
+            validateAndSetLocationVariables "favs" ~/Library/Favorites/
+            validateAndSetLocationVariables "proj" ~/Projects
+            validateAndSetLocationVariables "var" /private/var
+            validateAndSetLocationVariables "etc" /private/etc
+            if [[ -d /usr/local ]];
+            then
+                validateAndSetLocationVariables "uvar" /usr/local/var
+                validateAndSetLocationVariables "uetc" /usr/local/etc
+                validateAndSetLocationVariables "uetc2" /usr/local/etcc
+                validateAndSetLocationVariables "uetc" /usr/local/
+            fi
+        elif [[ "$(uname)" == 'Linux' ]]
+        then
+            validateAndSetLocationVariables "repos" ~/repos
+            validateAndSetLocationVariables "clienv" ~/repos/clienv
+            validateAndSetLocationVariables "www" ~/public_html
+        fi
+    }
+
+shopt -s cdable_vars
+
+    if (( ${#_location_variable_errors[@]} > 0 )); then
+        (( DEBUG_LEVEL >= 0 )) && _err "location variable assignment errors occurred (${#_location_variable_errors[@]})"
+    fi
+    
+    # clean up
+    unset -f validateAndSetLocationVariables
+    unset _location_variable_errors
+} # END LOCATION VARIABLES
+
 { # set bash-git-prompt-config
     declare bashgitprompt_file;
     bashgitprompt_file="${clienv:?}/src/bash/bashrc.d/bash-git-prompt-config.sh"
@@ -223,80 +299,6 @@
 
     }
 
-    { # LOCATION VARIABLES
-        if [[ -n "${_location_variables[*]}" ]]; then
-            # unset all location variables
-            for key in "${!_location_variables[@]}"; do
-                unset "${key}"
-            done
-        fi
-        unset _location_variables
-        
-        declare -A _location_variables; _location_variables=()
-        declare -A _location_variable_errors; _location_variable_errors=()
-
-        function validateAndSetLocationVariables() {
-            local NAME DIR;
-            NAME="${1:?}" DIR="${2:?}"
-            if [[ ! -d "${DIR}" ]]; then
-                _location_variable_errors["${NAME}"]="${DIR}"
-                (( DEBUG_LEVEL >= -1 )) && _err "unable to set variable. directory not found -- ${DIR}"
-                return 1
-            fi
-            if [[ -n "${!NAME}" ]]; then
-                _location_variable_errors["${NAME}"]="${DIR}"
-                (( DEBUG_LEVEL >= 0 )) && _err "name has already been set previously -- ${!NAME}"
-                return 2
-            fi
-            eval "${NAME}=\"${DIR}\""
-            if [[ -n "${!NAME}" && "${!NAME}" == "${DIR}" ]]; then
-                _location_variables["${NAME}"]="${DIR}"
-                (( DEBUG_LEVEL == 1 )) && _success "${NAME} => ${!NAME}"
-            fi
-        }
-
-        { # set location variables here
-            (( DEBUG_LEVEL >= 0 )) && printf '\n  [%s] => %s\n\n' 'clienv' 'setting location variables';
-
-            if _isMac; then
-                validateAndSetLocationVariables "clienv" ~/Developer/repos/clienv
-                validateAndSetLocationVariables "dev" ~/Developer
-                validateAndSetLocationVariables "scripts" ~/Developer/scripts
-                validateAndSetLocationVariables "shellscripts" ~/Developer/scripts/shell-scripts
-                validateAndSetLocationVariables "repos" ~/Developer/repos
-                validateAndSetLocationVariables "desk" ~/Desktop
-                validateAndSetLocationVariables "docs" ~/Documentssssss
-                validateAndSetLocationVariables "dl" ~/Downloads
-                validateAndSetLocationVariables "sites" ~/Sites
-                validateAndSetLocationVariables "favs" ~/Library/Favorites/
-                validateAndSetLocationVariables "proj" ~/Projects
-                validateAndSetLocationVariables "var" /private/var
-                validateAndSetLocationVariables "etc" /private/etc
-                if [[ -d /usr/local ]];
-                then
-                    validateAndSetLocationVariables "uvar" /usr/local/var
-                    validateAndSetLocationVariables "uetc" /usr/local/etc
-                    validateAndSetLocationVariables "uetc2" /usr/local/etcc
-                    validateAndSetLocationVariables "uetc" /usr/local/
-                fi
-            elif [[ "$(uname)" == 'Linux' ]]
-            then
-                validateAndSetLocationVariables "repos" ~/repos
-                validateAndSetLocationVariables "clienv" ~/repos/clienv
-                validateAndSetLocationVariables "www" ~/public_html
-            fi
-        }
-
-	shopt -s cdable_vars
-
-        if (( ${#_location_variable_errors[@]} > 0 )); then
-            (( DEBUG_LEVEL >= 0 )) && _err "location variable assignment errors occurred (${#_location_variable_errors[@]})"
-        fi
-        
-        # clean up
-        unset -f validateAndSetLocationVariables
-        unset _location_variable_errors
-    }
 }
 
 { # USER ALIASES
