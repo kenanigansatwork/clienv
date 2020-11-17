@@ -416,6 +416,18 @@ function hr () {
     return
 }
 
+if declare -f hr &> /dev/null
+then
+    alias rtstr='hr -d" " -h';
+    #alias rtdir='rtstr "$(echo "${PWD}" | sed "s:^/:root->:" | sed "s:root->${HOME#*/}/:home->:" | tr "/" "-")"';
+    alias rtdir='rtstr "$(echo "${PWD}" | sed "s:^/:root->:" | sed "s:root->${HOME#*/}/:home->:" | tr "/" "-")"';
+    alias rttime='rtstr "$(date +"%a %H:%M.%S")"';
+    alias rtt='rtdir;rttime;';
+    alias crtt='command clear && rtdir;rttime';
+    #alias crttt='rtstr "$(echo "${PWD}" | sed "s:^/:root->:" | sed "s:root->${HOME#*/}/:🏡 ➡:" | tr "/" "-") | $(date +"%a %H:%M.%S")"'
+    alias crttt='rtstr "$(echo -e "\\033[33;1m$(echo "${PWD}" | sed "s:^/:root->:" | sed "s:root->${HOME#*/}/:home->:" | tr "/" "-")\\033[00m \\033[1m|\\033[00m \\033[35;1m$(date +"%a %H:%M.%S")"\\033[00m)"'
+fi
+
 function funcs () {
 
     builtin declare -F | /usr/bin/cut -c12- | /usr/bin/sort | /usr/bin/column;
