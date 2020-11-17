@@ -440,6 +440,58 @@ function funcs () {
     return;
 }
 
+aliases ()
+{
+    _list_defs () {
+        printf '\033[45;37;1m ALIAS DEFS: \033[00m\n%s\n%s\n' "$(alias | cut -d' ' -f2- | awk -F"=" '{printf ("%15s   => %s\n",$1,$2)}')" "$(hr -d '-')";
+        return;
+    }
+
+    _list_names () {
+        printf '\033[45;37;1m ALIAS NAMES: \033[00m\n%s\n' "$(alias|cut -d' ' -f2- | sed 's/=.*$//' | sort | column)";
+        return;
+    }
+
+    _formatted_output () {
+        hr;
+        _list_defs;
+        _list_names;
+        hr -d '-';
+        echo;
+        return;
+    }
+
+    local -i OPTIND; OPTIND=1;
+    while getopts :nda OPT;
+    do
+        case "${OPT}" in
+            n) # list names
+                hr;
+                _list_names;
+                hr;echo;
+                return;
+            ;;
+            d) # list defs
+                hr;
+                _list_defs;
+                echo;
+                return;
+            ;;
+            a) # list both
+                _formatted_output;
+                return;
+            ;;
+            *) _err "invalid flag -- ${OPTARG}"
+                return 11;
+            ;;
+        esac;
+    done;
+    shift $((OPTIND-1));
+
+    _formatted_output;
+    return;
+}
+
 #shellcheck disable=2120
 function trim () {
     local INPUT;
