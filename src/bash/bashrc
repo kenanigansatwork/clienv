@@ -260,6 +260,7 @@
                 validateAndSetLocationVariables "clienv" ~/Developer/repos/clienv
                 validateAndSetLocationVariables "dev" ~/Developer
                 validateAndSetLocationVariables "scripts" ~/Developer/scripts
+                validateAndSetLocationVariables "shellscripts" ~/Developer/scripts/shell-scripts
                 validateAndSetLocationVariables "repos" ~/Developer/repos
                 validateAndSetLocationVariables "desk" ~/Desktop
                 validateAndSetLocationVariables "docs" ~/Documentssssss
