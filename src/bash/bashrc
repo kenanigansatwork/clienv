@@ -338,7 +338,12 @@
         alias airport='/System/Library/PrivateFrameworks/Apple80211.framework/Versions/A/Resources/airport'
     fi
 
-}
+    if [[ -x /Applications/GeekTool.app ]] && _isMac
+    then
+        alias geektool='open -a "GeekTool"'
+    fi
+
+}   # END USER ALIASES
 
 
 f1 () {
