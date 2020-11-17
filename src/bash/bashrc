@@ -412,6 +412,9 @@ function hr () {
 
 function funcs () {
 
+    builtin declare -F | /usr/bin/cut -c12- | /usr/bin/sort | /usr/bin/column;
+    return;
+
     #shellcheck disable=2207
     declare -F | sed -E 's/^declare -[a-z0-1A-Z]+ //' | sort | grep -v '^shell_session_'
     mapfile FUNCNAMES < <(declare -F | sed -E 's/^declare -[a-z0-1A-Z]+ //' | sort | grep -v '^shell_session_');
