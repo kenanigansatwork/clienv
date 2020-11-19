@@ -173,7 +173,10 @@
             validateAndSetLocationVariables "clienv" ~/Developer/repos/clienv
             validateAndSetLocationVariables "clienvbash" ~/Developer/repos/clienv/src/bash
             validateAndSetLocationVariables "dev" ~/Developer
-            validateAndSetLocationVariables "scripts" ~/Developer/scripts
+            validateAndSetLocationVariables "scriptsold" ~/Developer/scripts
+            validateAndSetLocationVariables "scripts" "${clienv:?}/src/scripts"
+            validateAndSetLocationVariables "scriptssandbox" "${clienv:?}/src/scripts/_sandbox"
+            validateAndSetLocationVariables "scriptsbash" "${clienv:?}/src/scripts/bash"
             validateAndSetLocationVariables "shellscripts" ~/Developer/scripts/shell-scripts
             validateAndSetLocationVariables "repos" ~/Developer/repos
             validateAndSetLocationVariables "desk" ~/Desktop
