@@ -643,10 +643,11 @@ function paths () {
 function clienv () {
 
     # handle option flags
-    local -i OPTIND; OPTIND=1;
+    local -i OPTIND VERBOSITY;
+    OPTIND=1; VERBOSITY=0;
     # -b: specify to list bash init files
 
-    while getopts :bna OPT;
+    while getopts :bnav OPT;
     do
         case "${OPT}" in
             a)
@@ -673,6 +674,9 @@ function clienv () {
                 done < <(find "$clienv/src" -type f) \
                     | sed 's/^.*\(clienv\)/\1/';
                 return;
+            ;;
+            v)
+                ((VERBOSITY++));
             ;;
             :)
                 _err "option flag requires an argument -- \`${OPTARG}'";
