@@ -797,16 +797,20 @@ if _isMac; then
         return
     }
 
-#    clear ()
-#    {
-#        function _clear ()
-#        {
-#            /usr/bin/clear;
-#            return
-#        };
-#        _clear;
-#        /usr/bin/printf '%s\n\n' "$(hr -h "$(/usr/bin/printf '%s@%s' "${USER}" "$(/bin/hostname)")")";
-#        return
-#    }
+    
+    if declare -f hr &> /dev/null
+    then
+        clearl ()
+        {
+            /usr/bin/clear;
+            /usr/bin/printf '\n  PWD: %s\n  TIME: %s\n\n' "${PWD}" "$(date +"%a %H:%M.%S")";
+            /bin/ls -hGTA;
+            hr;
+            echo;
+            return
+        }
+        declare -f clearl &> /dev/null \
+            && alias cl='clearl';
+    fi
 
 fi
