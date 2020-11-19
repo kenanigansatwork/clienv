@@ -698,24 +698,32 @@ function clienv () {
         return 13;
     fi;
 
-    { # output report
-        hr -d'-';
-        printf '\n  => PWD: %s\n' "$PWD"
-        hr;
-        _msg "STATUS:";
-        git status;
-        hr;
-        _msg "BRANCHES:";
-        git branch -a;
-        hr;
-        _msg "REMOTES:";
-        git remote -v;
-        hr;
-    }
+    if (( VERBOSITY > 0 ));
+    then
+        { # output report
+            hr -d'-';
+            printf '  => PWD: %s\n' "$PWD"
+            if (( VERBOSITY > 1 ));
+            then
+                _msg "STATUS:";
+                git status;
+                hr;
+            fi
+            if (( VERBOSITY == 1 ));
+            then
+                hr -d'-';
+                _msg "BRANCHES:";
+                git branch -a;
+                hr;
+                _msg "REMOTES:";
+                git remote -v;
+                    hr;
+            fi
+        }
+    fi
 
     return;
 }
-
 
 if _isMac; then
     function kenanigans () {
