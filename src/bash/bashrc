@@ -537,6 +537,12 @@ function trim () {
     return;
 }
 
+#if declare -f trim &> /dev/null;
+#then
+#    alias lines='/usr/bin/wc -l | trim | tr -d "\n"'
+#fi
+
+
 if command -v shellcheck &> /dev/null;
 then
     function sch () { 
