@@ -549,33 +549,50 @@ aliases ()
 if command -v shellcheck &> /dev/null;
 then
     function sch () { 
-        local TARGET;
-        TARGET="${1:?no target file given}";
-        local -a LVL;
-        LVL=('error' 'warning' 'info' 'style');
-        for l in "${LVL[@]}";
-        do
-            lvl_output="$(shellcheck -xa "${TARGET}" -f gcc -S "${l}" | grep -v '^[[:blank:]]*$')";
-            local -i output_count;
-            #shellcheck disable=2126
-            output_count=$(builtin echo "${lvl_output}" | grep -v '^[[:blank:]]*$' | wc -l | tr -dc '0-9');
-            printf '\t%8s: %s\n' "${l}" "${output_count}";
-            if ! (( output_count == 0 )); then
-                builtin echo "${lvl_output}";
-            fi;
-        done;
-        return;
-        builtin echo;
-        __build_hdr_str "ERROR";
-        shellcheck -xa "${TARGET}" -f gcc -S error;
-        __build_hdr_str "WARNING";
-        shellcheck -xa "${TARGET}" -f gcc -S warning;
-        __build_hdr_str "INFO";
-        shellcheck -xa "${TARGET}" -f gcc -S info;
-        __build_hdr_str "STYLE";
-        shellcheck -xa "${TARGET}" -f gcc -S style;
-        builtin echo;
-        return;
+
+        _list_level_output () {
+            shellcheck -xa "${TARGET}" -f gcc -S "${l}" | grep -v '^[[:blank:]]*$'
+            return
+        }
+
+        _check_file () {
+            hr
+            local TARGET; TARGET="${1:?no target file given}";
+            #verify file exists and readable
+            if [[ ! -e "${TARGET}" || ! -f "${TARGET}" || ! -r "${TARGET}" ]]; then
+                _err "unable to find, access, or read specified target: ${TARGET}"
+                return
+            fi
+            for l in "${LVL[@]}";
+            do
+                lvl_output="$(_list_level_output)";
+                local -i output_count;
+                #shellcheck disable=2126
+                output_count=$(builtin echo "${lvl_output}" | grep -v '^[[:blank:]]*$' | wc -l | tr -dc '0-9');
+                printf '\t%8s: %s\n' "${l}" "${output_count}";
+                if ! (( output_count == 0 )); then
+                    builtin echo "${lvl_output}";
+                fi;
+            done;
+            return;
+            builtin echo;
+            __build_hdr_str "ERROR";
+            shellcheck -xa "${TARGET}" -f gcc -S error;
+            __build_hdr_str "WARNING";
+            shellcheck -xa "${TARGET}" -f gcc -S warning;
+            __build_hdr_str "INFO";
+            shellcheck -xa "${TARGET}" -f gcc -S info;
+            __build_hdr_str "STYLE";
+            shellcheck -xa "${TARGET}" -f gcc -S style;
+            builtin echo;
+            return;
+        }
+
+        (( $# == 0 )) && _err "no input files passed" && return 11
+
+        for filename in "$@"; do
+            _check_file "${filename}"
+        done
     }
 fi
 
