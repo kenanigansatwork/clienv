@@ -361,15 +361,18 @@ shopt -s cdable_vars
 
 
 f1 () {
+    local OLDIFS; OLDIFS=$"${IFS}"
+    IFS=$'\n'
+    trap 'IFS=$"${OLDIFS}"; [[ "${OLDIFS}" != "${IFS}" ]] && _err "I broke the IFS variable"; return;' return HUP QUIT INT
+
+    local target; local -a args
     target="${1:?}"; shift 1
-    local -a args
-    args=([0]='-mindepth' [1]=1 [2]='-maxdepth' [3]=1)
+    args=( [0]='-mindepth' [1]=1 [2]='-maxdepth' [3]=1 )
     args+=( "$@" )
     CMD="command find ${target}"
     for ((c=0;c<${#args[@]};c++)); do
         CMD+=" $(printf '%q' "${args[${c}]}")"
     done
-    #builtin echo "CMD: ${CMD}"
     eval "${CMD}"
     return
 }
