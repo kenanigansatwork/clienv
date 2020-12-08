@@ -792,6 +792,19 @@ fi
 
 if _isMac; then
     # make trash function
+
+    dait ()
+    {
+        /bin/date +"%a-%b-%d %H:%M";
+        return
+    }
+
+    daitstamp ()
+    {
+        /bin/date +"%a-%b-%d %H:%M";
+        return
+    }
+
     trash () {
         local TRASH_DIR
         TRASH_DIR=~/.Trash
