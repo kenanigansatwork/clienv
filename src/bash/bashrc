@@ -177,6 +177,7 @@
             validateAndSetLocationVariables "scripts" "${clienv:?}/src/scripts"
             validateAndSetLocationVariables "scriptssandbox" "${clienv:?}/src/scripts/_sandbox"
             validateAndSetLocationVariables "scriptsbash" "${clienv:?}/src/scripts/bash"
+            validateAndSetLocationVariables "bashscripts" "${clienv:?}/src/scripts/bash"
             validateAndSetLocationVariables "shellscripts" ~/Developer/scripts/shell-scripts
             validateAndSetLocationVariables "repos" ~/Developer/repos
             validateAndSetLocationVariables "desk" ~/Desktop
@@ -310,6 +311,7 @@ shopt -s cdable_vars
     _isMac && alias ls='ls -hGT' \
         || alias ls='ls --color=auto'
 
+    alias dff='declare -f f 2> /dev/null'
     alias la='ls -A'
     alias ll='ls -og'
     alias lla='ls -ogA'
