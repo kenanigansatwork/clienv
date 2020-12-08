@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# err.sh
+
+declare  -i OPTIND; OPTIND=1;
+declare  headerStr; headerStr='ERROR';
+while getopts :h: OPT; do
+    case "${OPT}" in 
+        h) headerStr="${OPTARG}";;
+        :) _err "flag requires an argument -- \`${OPTARG}'";;
+        *) _err "invalid option flag -- \`${OPTARG}'";;
+    esac;
+done; shift $((OPTIND-1));
+
+declare msg header;
+msg="${*:-"an unspecified error occurred"}";
+header=" ${headerStr} ";
+printf ' %s%s%s %s%s%s\n' "${CLR_ERR_HEADER}" "${header}" "${CLR_RST}" "${CLR_ERR_TXT}" "${msg}" "${CLR_RST}" 1>&2;
+exit 0
