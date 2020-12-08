@@ -4,3 +4,11 @@
 
 #shellcheck disable=1090
 [ -r ~/.bashrc ] && . ~/.bashrc
+
+# GCLOUD CONFIG
+#
+# - path.bash.inc: updates PATH for the Google Cloud SDK
+# - completion.bash.inc: enables shell command completion for gcloud
+# 
+[[ -r "${HOME}/google-cloud-sdk/path.bash.inc" ]] && . "${HOME}/google-cloud-sdk/path.bash.inc";
+[[ -r "${HOME}/google-cloud-sdk/completion.bash.inc" ]] && . "${HOME}/google-cloud-sdk/completion.bash.inc";
