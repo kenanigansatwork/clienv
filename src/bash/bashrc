@@ -323,7 +323,7 @@ shopt -s cdable_vars
     alias lm.='ls -md .[^$.]* 2> /dev/null'
     alias lll.='ls -ogdL .[^$.]* 2> /dev/null'
 
-    #alias c='clear'
+    alias c='clear'
     alias x='exit'
     alias sbash='[ -r ~/.bash_profile ] && . ~/.bash_profile'
 
