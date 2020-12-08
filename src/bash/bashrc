@@ -323,13 +323,26 @@ shopt -s cdable_vars
     alias lm.='ls -md .[^$.]* 2> /dev/null'
     alias lll.='ls -ogdL .[^$.]* 2> /dev/null'
 
-    alias c='clear'
+    #alias c='clear'
     alias x='exit'
     alias sbash='[ -r ~/.bash_profile ] && . ~/.bash_profile'
 
     alias shutdown='sudo command shutdown -h now'
     alias shutdownh='sudo command shutdown -h now'
     alias shutdownr='sudo command shutdown -r now'
+
+    if command -v git-cal &> /dev/null
+    then
+        gitcal () 
+        { 
+            /usr/bin/printf '\n%s\n%s\n\n' \
+                "$(/usr/bin/git cal | /usr/bin/sed -E '/(Total commits)/,$d')" \
+                "$(hr)"
+
+            return
+        }
+    fi
+
 
     if _isMac;
     then
