@@ -13,8 +13,8 @@ fi;
 declare OUTPUT;
 OUTPUT="$(builtin echo "${INPUT}" \
             | sed -E \
-                -e 's/^[[:blank:]]*//' \
-                -e 's/[[:blank:]]*$//'\
+                -e 's/^[[:cntrl:][:blank:]]*//' \
+                -e 's/[[:cntrl:][:blank:]]*$//'\
          )" \
     || exit 12;
 [[ -z "${OUTPUT:-}" ]] && exit 13;
