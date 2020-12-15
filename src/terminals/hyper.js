@@ -9,41 +9,44 @@ module.exports = {
     updateChannel: 'stable',
 
     // default font size in pixels for all tabs
-    fontSize: 16,
+    fontSize: 13,
 
     // font family with optional fallbacks
-    fontFamily: 'Menlo, "Roboto Mono", "Source Code Pro", "Ubunto Mono", "DejaVu Sans Mono", Consolas, "Lucida Console", monospace',
+    //fontFamily: '"Source Code Pro", "Menlo, "Roboto Mono", "Source Code Pro", "Ubunto Mono", "DejaVu Sans Mono", Consolas, "Lucida Console", monospace',
+    // fontFamily: 'Menlo, "Roboto Mono", "Source Code Pro", "Ubunto Mono", "DejaVu Sans Mono", Consolas, "Lucida Console", monospace',
+    fontFamily: '"Syne Mono", monospace',
 
     // default font weight: 'normal' or 'bold'
     fontWeight: 200,
 
     // font weight for bold characters: 'normal' or 'bold'
-    fontWeightBold: 800,
+    fontWeightBold: 400,
 
     // line height as a relative unit
-    lineHeight: 1.35,
+    lineHeight: 1,
 
     // letter spacing as a relative unit
-    letterSpacing: 0.5,
+    letterSpacing: 1,
 
     // terminal cursor background color and opacity (hex, rgb, hsl, hsv, hwb or cmyk)
-    cursorColor: 'rgba(248,28,229,0.8)',
+    //cursorColor: 'rgba(248,28,229,0.8)',
+    cursorColor: 'rgba(184,254,46)', //E0FE3A
 
     // terminal text color under BLOCK cursor
-    cursorAccentColor: '#333',
+    cursorAccentColor: 'purple',
 
     // `'BEAM'` for |, `'UNDERLINE'` for _, `'BLOCK'` for █
     cursorShape: 'BLOCK',
 
     // set to `true` (without backticks and without quotes) for blinking cursor
-    cursorBlink: false,
+    cursorBlink: true,
 
     // color of the text
     foregroundColor: 'rgba(255,255,255,1)',
 
     // terminal background color
     // opacity is only supported on macOS
-    backgroundColor: 'rgba(10,10,10,0.85)',
+    backgroundColor: 'rgba(10,10,10,0.90)',
 
     // terminal selection color
     selectionColor: 'rgba(248,28,229,0.4)',
