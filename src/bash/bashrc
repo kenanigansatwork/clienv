@@ -312,6 +312,8 @@ shopt -s cdable_vars
         || alias ls='ls --color=auto'
 
     alias dff='declare -f f 2> /dev/null'
+    alias disks='/bin/df -PHl'
+
     alias la='ls -A'
     alias ll='ls -og'
     alias lla='ls -ogA'
