@@ -12,3 +12,4 @@
 # 
 [[ -r "${HOME}/google-cloud-sdk/path.bash.inc" ]] && . "${HOME}/google-cloud-sdk/path.bash.inc";
 [[ -r "${HOME}/google-cloud-sdk/completion.bash.inc" ]] && . "${HOME}/google-cloud-sdk/completion.bash.inc";
+export LSCOLORS='dxfxcxdxbxegedabagacad'
