@@ -65,7 +65,8 @@ fi
 } \
     2>&1 >> "${LOGFILE}"
 
-tail -n 1 "${LOGFILE}"
+#tail -n 2 "${LOGFILE}" \
+#    | head -n 1
 
 exit
 
