@@ -17,7 +17,7 @@ module.exports = {
     fontFamily: '"Syne Mono", monospace',
 
     // default font weight: 'normal' or 'bold'
-    fontWeight: 200,
+    fontWeight: 400,
 
     // font weight for bold characters: 'normal' or 'bold'
     fontWeightBold: 400,
