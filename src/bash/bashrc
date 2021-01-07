@@ -483,19 +483,37 @@ function funcs ()
 
     function _list_func ()
     {
-        echo "FUNC: ${funcname}"
+        #~/bin/horizontal_rule -h "START_FUNC: ${funcname}"
+        printf '\n\t> [40;33;1m FUNC: [00m [45;37;1m %s [00m\n\n' "${funcname}";
         printf '%s\n' "${OUTPUT:?}"
-        ~/bin/horizontal_rule
+        #printf '\n\t> [35;1mEND_FUNC:[00m [45;37;1m %s [00m\n\n' "${funcname}";
+        ~/bin/horizontal_rule -h "END_FUNC: ${funcname}"
         return
     }
+
+    function _list_func_definitions ()
+    {
+        for funcname in "$@"; do
+            (( MORE_FLAG == 1 )) \
+                && clear
+            OUTPUT="$(declare -f "${funcname}")"
+            if [[ -n "${OUTPUT:-}" ]]; then
+                _list_func "${funcname}";
+            else
+                _err "function not defined: ${funcname}"
+            fi
+            (( MORE_FLAG == 1 )) \
+                && read -rp "<CR> to continue..." REP
+        done
+        return
+    }
+
+    local MORE_FLAG; MORE_FLAG=0
 
     if (( $# == 0 )); then
         _list_all_funcs
     else
-        for funcname in "$@"; do
-            OUTPUT="$(declare -f "${funcname}")"
-            if [[ -n "${OUTPUT:-}" ]]; then _list_func "${funcname}"; fi
-        done
+        _list_func_definitions "$@"
     fi
     return
 }
