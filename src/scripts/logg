@@ -1,0 +1,25 @@
+#!/usr/bin/env  bash
+# ~/bin/logg
+
+declare LOGFILE
+LOGFILE=~/.logg
+[[ ! -r ~/.logg ]] && touch "${LOGFILE}"
+
+function hr () { ~/bin/horizontal_rule; }
+declare MSG
+declare DATESTAMP
+DATESTAMP="$(date +"[%Y%m%d_%H_%M_%S]")"
+MSG="${*:-"This is a logger."}"
+if (( $(echo "${MSG}" | wc -l | tr -dc '0-9') > 1 )); then
+    MSG="$(echo "$MSG" | sed 's/^/    /')"
+fi
+{
+    printf '%s [37;44;1m LOGG>> [00m %s\n' "$DATESTAMP" "$MSG"
+    hr
+} \
+    2>&1 >> "${LOGFILE}"
+
+tail -n 1 "${LOGFILE}"
+
+exit
+
