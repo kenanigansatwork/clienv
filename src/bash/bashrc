@@ -187,7 +187,7 @@
             validateAndSetLocationVariables "docs" ~/Documentssssss
             validateAndSetLocationVariables "dl" ~/Downloads
             validateAndSetLocationVariables "sites" ~/Sites
-            validateAndSetLocationVariables "favs" ~/Library/Favorites/
+            validateAndSetLocationVariables "favs" ~/Library/Favorites
             validateAndSetLocationVariables "proj" ~/Projects
             validateAndSetLocationVariables "var" /private/var
             validateAndSetLocationVariables "etc" /private/etc
@@ -1052,3 +1052,4 @@ function chars ()
     echo "INPUT: ${INPUT}"
     return
 }
+
