@@ -215,7 +215,7 @@ if [[ -n "${icloud:-}" ]]; then
     }
 fi
 
-shopt -s cdable_vars
+shopt -s cdable_vars globstar
 
     if (( ${#_location_variable_errors[@]} > 0 )); then
         (( DEBUG_LEVEL >= 0 )) && _err "location variable assignment errors occurred (${#_location_variable_errors[@]})"
