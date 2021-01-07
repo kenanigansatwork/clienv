@@ -335,6 +335,10 @@ shopt -s cdable_vars
     alias lm.='ls -md .[^$.]* 2> /dev/null'
     alias lll.='ls -ogdL .[^$.]* 2> /dev/null'
 
+    if command -v git &> /dev/null; then
+        alias gits='git s'
+    fi
+
     [[ -x ~/bin/horizontal_rule ]] \
         && alias hr="${HOME}/bin/horizontal_rule"
 
