@@ -473,30 +473,31 @@ then
     alias crttt='rtstr "$(echo -e "\\033[33;1m$(echo "${PWD}" | sed "s:^/:root->:" | sed "s:root->${HOME#*/}/:home->:" | tr "/" "-")\\033[00m \\033[1m|\\033[00m \\033[35;1m$(date +"%a %H:%M.%S")"\\033[00m)"'
 fi
 
-function funcs () {
-
-    builtin declare -F | /usr/bin/cut -c12- | /usr/bin/sort | /usr/bin/column;
-    return;
-
-    #shellcheck disable=2207
-    declare -F | sed -E 's/^declare -[a-z0-1A-Z]+ //' | sort | grep -v '^shell_session_'
-    mapfile FUNCNAMES < <(declare -F | sed -E 's/^declare -[a-z0-1A-Z]+ //' | sort | grep -v '^shell_session_');
-    mapfile sysfuncnames < <(builtin echo "${FUNCNAMES[@]}" | xargs -n1  builtin echo | grep '^_');
-    mapfile userfuncnames < <(builtin echo "${FUNCNAMES[@]}" | xargs -n1  builtin echo | grep -v '^_');
-
-    hr -d'-'
+function funcs ()
+{
+    function _list_all_funcs ()
     {
-        builtin echo -e "\\n\\033[46;37;1m FUNCTIONS: \\033[00;00;0m";
-        builtin echo -e "\\n[36m sys:[00m\\n${sysfuncnames[*]}";
-        builtin echo -e "\\n[36m user:[00m";
-        builtin echo "${userfuncnames[@]}" | xargs -n1 echo | nl \
-            | trim \
-            | tr '\t' ' ' | tr -s ' ';
-        builtin echo;
-    } \
-        | sed -E -e 's/^/   /';
-    hr -d'-';
-    return;
+        builtin declare -F | /usr/bin/cut -c12- | /usr/bin/sort | /usr/bin/column;
+        return
+    }
+
+    function _list_func ()
+    {
+        echo "FUNC: ${funcname}"
+        printf '%s\n' "${OUTPUT:?}"
+        ~/bin/horizontal_rule
+        return
+    }
+
+    if (( $# == 0 )); then
+        _list_all_funcs
+    else
+        for funcname in "$@"; do
+            OUTPUT="$(declare -f "${funcname}")"
+            if [[ -n "${OUTPUT:-}" ]]; then _list_func "${funcname}"; fi
+        done
+    fi
+    return
 }
 
 aliases ()
