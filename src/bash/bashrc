@@ -1055,3 +1055,15 @@ function chars ()
     return
 }
 
+function brewupdate ()
+{
+    local -a CMDS;
+    CMDS=( "brew update" "brew upgrade" "brew upgrade --cask" "brew doctor" );
+    for CMD in "${CMDS[@]}"; do
+        ~/bin/horizontal_rule -h "EXE: ${CMD}";
+        eval "${CMD}";
+    done
+    ~/bin/horizontal_rule;
+    return;
+}
+
