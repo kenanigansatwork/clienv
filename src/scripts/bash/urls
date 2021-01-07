@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+# urls
+
+if (( $# == 0 )); then
+    exit 11
+fi
+
+declare -i PRIVATE_FLAG
+PRIVATE_FLAG=0
+
+while getopts p OPT
+do
+    case "$OPT" in
+        p) PRIVATE_FLAG=1;;
+    esac
+done
+shift $((OPTIND-1))
+
+(( $# > 0 )) || return 11;
+
+function _activate_safari ()
+{
+osascript \
+    -e "tell application \"Safari\"" \
+        -e "activate" \
+        -e "delay 0.1" \
+    -e "end tell"
+    return
+}
+
+function _new_private_window ()
+{
+    osascript \
+        -e "tell application \"Safari\"" \
+            -e "tell application \"System Events\" to keystroke \"n\" using {command down,shift down}" \
+            -e "delay 0.1" \
+        -e "end tell";
+    return
+}
+
+function _new_window ()
+{
+    osascript \
+        -e "tell application \"Safari\"" \
+            -e "tell application \"System Events\" to keystroke \"n\" using {command down}" \
+            -e "delay 0.1" \
+        -e "end tell";
+    return
+}
+
+function _close_first_tab ()
+{
+    osascript \
+        -e "tell application \"Safari\"" \
+            -e "delay 0.2" \
+            -e "tell application \"System Events\" to keystroke \"1\" using {command down}" \
+            -e "delay 0.2" \
+            -e "tell application \"System Events\" to keystroke \"w\" using {command down}" \
+        -e "end tell";
+    return
+}
+
+function _alt_tab ()
+{
+    osascript \
+        -e "tell application \"System Events\"" \
+            -e "key code 48" \
+        -e "end tell"
+    return
+}
+
+_activate_safari
+if (( PRIVATE_FLAG==1 )); then
+    _new_private_window
+else
+    _new_window
+fi
+
+osascript -e "delay 0.5"
+_alt_tab
+
+for url in "$@"; do open -j -a "Safari" "$url"; done;
+
+_close_first_tab
+
+exit
