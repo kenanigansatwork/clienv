@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+# horizontal_rule
+
+function handleOpts()
+{
+    case "${OPT}" in 
+        d) delim="${OPTARG:0:1}";;
+        D) headertext="$(date +"%a %H:%M")";;
+        P) headertext="${PWD}";;
+        h) headertext="${OPTARG}";;
+        :) _err "flag requires an argument -- ${OPTARG}";;
+        *) _err "invalid option flag -- ${OPTARG}";;
+    esac;
+    return
+}
+
+function setVars()
+{
+    OPTIND=1;
+    rtstrlength=4;
+    col=${COLUMNS:-$(tput cols)};
+    hrstr='';
+    delim='.';
+    headertext='';
+    text='';
+    return;
+}
+
+function buildHeaderString()
+{
+    # specify header text
+    if [[ -z "${headertext:-}" ]];
+    then if (( $# > 0 )); then text="${*}"; fi;
+    else text="${headertext}";
+    fi;
+    if (( ${#text} > col )); then _err; exit 2; fi;
+    # build base of header string
+    for ((c = 0; c < $(( col - ${#text} - $((rtstrlength+2)) )); c++ )); do hrstr="${hrstr}${delim}"; done;
+    if [[ -n "${text:-}" ]]; then hrstr+=" ${text} "; else hrstr+="${delim}${delim}"; fi;
+    # build header string with delimiter
+    for ((a = 0; a < rtstrlength; a++ )); do hrstr+="${delim}"; done;
+    return
+}
+
+declare -i OPTIND rtstrlength col;
+declare text hrstr delim headertext;
+setVars
+
+while getopts :d:h:PD OPT; do handleOpts; done && shift $((OPTIND-1));
+
+# validate delimiter
+(( ${#delim} > 1 )) && delim="${delim:0:1}";
+
+# build header string
+buildHeaderString
+
+# validate headerstring properties
+if [[ -z "${hrstr}" ]]; then _err; exit 2; fi;
+if (( ${#hrstr} != col )); then _err; exit 1; fi;
+
+# output header string
+printf '%s\n' "${hrstr}";
+
+exit

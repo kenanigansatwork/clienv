@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+# parse_applescript_properties
+
+declare INPUT;
+INPUT="";
+
+function echoInput()
+{
+    echo "INPUT:"
+    echo "$INPUT"
+    exit
+}
+
+function usage()
+{
+    local msg
+    msg="USAGE: parse_applescript_properties [-pi]"
+    local -A OPTFLAGS
+    OPTFLAGS=(
+        ["p"]="specifies to use pasteboard contents as input"
+        ["i"]="specifies to use standard in as input"
+        ["u"]="displays this usage message"
+    );
+    if (( ${#OPTFLAGS[@]} > 0 )); then
+        msg+="\\n\\nOPTIONS:\\n"
+        for KEY in "${!OPTFLAGS[@]}"; do
+            msg+="\\t-${KEY}: ${OPTFLAGS[${KEY}]}\\n"
+        done
+    fi
+    msg+="\\n"
+    echo -e "${msg}"
+    return
+}
+
+function parseFlag()
+{
+    case "$OPT" in
+        p) INPUT="$(pbpaste)"; [[ -z "${INPUT}" ]] && _err && exit 13;;
+        i) INPUT="$(cat /dev/stdin)"; [[ -z "${INPUT}" ]] && _err && exit 14;;
+        h|u) usage; exit 0;;
+        :) _err "invalid flag -- ${OPTARG}";;
+    esac
+    return
+}
+
+function setInput()
+{
+    # option flag to specify input was not specified
+    if [[ -p /dev/stdin ]]; then
+        INPUT="$(cat /dev/stdin)"
+    elif (($# > 0)); then
+        INPUT="$*"
+    elif [[ -n "$(pbpaste)" ]]; then
+        INPUT="$(pbpaste)"
+    else
+        _err
+        return 10
+    fi
+    return
+}
+
+function parseInput()
+{
+    echo "${INPUT}" \
+        | sed -E \
+            -e 's/^{//' \
+            -e 's/}$//' \
+        | sed -E \
+            -e 's/([a-z]+):{(y:)?([0-9.]+), (x:)?([0-9.]+), (width:)?([0-9.]+), (height:)?([0-9.]+)}/\1:{\2\3;\4\5;\6\7;\8\9}/g' \
+        | sed -E \
+            -e 's/{([0-9]+), ([0-9]+)}/{\1;\2}/g' \
+        | sed -E \
+            -e 's/,[[:blank:]]+/|/g' \
+        | tr '|' '\n' \
+        | sed -E \
+            -e 's/[[:blank:]]+$//' \
+        | sed -E \
+            -e '/^[^[:blank:]]/s:^:|:' \
+            -e '/^[[:blank:]]/s/^[[:blank:]]+/; /' \
+        | tr -d '\n' \
+        | tr '|' '\n' \
+        | sed \
+            -e '/^[[:blank:]]*$/d' \
+        | sed \
+            -e 's/:/^/' \
+        | awk -F"^" '{printf ("%*s: %s\n",25,$1,$2)}'
+    return
+}
+
+
+~/bin/horizontal_rule
+while getopts :piuh OPT; do parseFlag; done && shift $((OPTIND-1))
+if [[ -z "${INPUT:-}" ]]; then setInput || exit $?; fi
+if [[ -z "${INPUT:-}" ]]; then _err; exit 11; fi
+#echoInput
+parseInput
+~/bin/horizontal_rule
+
