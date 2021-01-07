@@ -391,6 +391,7 @@ shopt -s cdable_vars
     if [[ -x /Applications/GeekTool.app ]] && _isMac
     then
         alias geektool='open -a "GeekTool"'
+        alias geek='open -a "GeekTool"'
     fi
 
 }   # END USER ALIASES
