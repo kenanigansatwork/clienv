@@ -894,3 +894,44 @@ function get_current_wifi_2 ()
     return;
 }
 
+function aliases()
+{
+    printf '\n  ALIASES:\n'
+    alias \
+        | sed -E -e 's/^alias +//' -e 's/=.*$//' \
+        | column
+    printf '\n'
+    return
+}
+
+function vars()
+{
+    _list_out_var_names ()
+    {
+        printf '\n  VARIABLES:\n\n';
+        {
+            set \
+                | sed -E -e '/^{/,$d' \
+                | sed -E -e '$d'; env;
+        } \
+            | awk -F"=" '{print $1}' \
+            | grep -v '^_$' \
+            | sort \
+            | uniq \
+            | grep -E -v -e '^[[:punct:][:blank:]]$' \
+            | column;
+        printf '\n\n';
+        return;
+    }
+
+    if (( $# == 0 )); then
+        _list_out_var_names
+    else
+        for varname in "$@"; do
+            local VALUE;
+            VALUE="${!varname:-"<NULL>"}"
+            printf -- '-> [%s]: %s\n' "${varname}" "${VALUE}"
+        done
+    fi
+    return
+}
