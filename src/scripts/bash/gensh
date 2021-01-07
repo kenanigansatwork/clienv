@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+# gensh
+
+declare clienv
+clienv="${HOME}/Developer/repos/clienv"
+[[ ! -d "${clienv}" || ! -x "${clienv}" ]] \
+    && exit 21
+
+function _link_target ()
+{
+    if ! ln -s "${TARGET}" "${TARGET_LINK}"
+    then
+        _err "unable to link to ~/bin -- ${TARGET_LINK}"
+        return 1
+    else
+        printf '  > %s\n' "TARGET LINKED TO ~/bin -- ${TARGET_LINK}"
+    fi
+    return 0
+}
+
+function _prompt_to_link_target ()
+{
+    printf '  > %s?' "link script to ${TARGET_LINK}?"
+    read -rp " (y/N) " REP;
+    case "${REP:0:1}" in
+        y) _link_target;;
+        *) printf '\n  > %s\n' "skipping linking script to ~/bin";;
+    esac
+    return
+}
+
+function _prompt_to_edit ()
+{
+    printf '  > %s\n  > ' "Edit new file?";
+    read -rp "(y/N) " REP;
+    case "${REP:0:1}" in 
+        y) ${EDITOR:-vim} "${TARGET}" || exit 16; exit;;
+        *) _err; exit 17;;
+    esac;
+    return
+}
+
+function _create_executable_file ()
+{
+    # create new file
+    printf '  > %s...' "Creating new script file";
+    touch "${TARGET}" || exit 13;
+    echo " SUCCESS";
+
+    # make new file executable
+    printf '  > %s...' "Making executable";
+    chmod +x "${TARGET}" || exit 14;
+    echo " SUCCESS";
+
+    # populate new file with template
+    cat <<! > "${TARGET}"
+#!/usr/bin/env bash
+# $(basename "${TARGET}")
+
+
+!
+    return
+}
+
+function _set_and_verify_vars ()
+{
+    FN="${1:?"pass name of script in as argument \$1"}";
+    if echo "${FN}" | grep -q "\.sh$"; then
+        # format FN
+        FN="$(echo "$FN" | sed 's/\.sh$//')"
+    fi
+
+    BASH_SCRIPT_DIR="${clienv:?}/src/scripts/bash";
+    # verify script dir
+    if [[ ! -d "${BASH_SCRIPT_DIR}" || ! -x "${BASH_SCRIPT_DIR}" ]]; then
+        exit 11;
+    fi
+
+    # set the target path
+    TARGET="${BASH_SCRIPT_DIR}/${FN}";
+    # verify target path does not already exist
+    [[ -e "${TARGET}" ]] && _err "FILE TARGET EXISTS: ${TARGET}" && exit 12;
+    return
+}
+
+declare FN BASH_SCRIPT_DIR TARGET TARGET_LINK
+declare -l REP;
+
+_set_and_verify_vars "${1:-}"
+
+_create_executable_file
+
+# verify template was copied to new file
+REP='';
+[[ ! -s "${TARGET}" ]] && _err "error creating new file -- ${TARGET}" && exit 15;
+
+# prompt user to link script to PATH directory
+TARGET_LINK="${HOME}/bin/${FN}"
+if [[ -e "${TARGET_LINK}" ]];
+then
+    printf '  > %s\n' "unable to link script to ~/bin, already exists -- ${TARGET_LINK}" >&2
+else
+    _prompt_to_link_target
+fi
+
+# prompt user to edit new script file
+REP='';
+_prompt_to_edit
+
+exit
+
