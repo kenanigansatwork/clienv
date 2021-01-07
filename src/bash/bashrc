@@ -1010,8 +1010,8 @@ function lines ()
     ((LINECOUNT--))
 
     echo "LINES: ${LINECOUNT}"
-    echo "INPUT:"
-    echo "${INPUT}"
+    #echo "INPUT:"
+    #echo "${INPUT}"
 
     return
 }
@@ -1049,8 +1049,9 @@ function chars ()
         | trim)
     ((CHARCOUNT--))
 
-    echo "LINES: ${CHARCOUNT}"
-    echo "INPUT: ${INPUT}"
+    echo "CHARACTERS: ${CHARCOUNT}"
+    #echo "INPUT:"
+    #echo "${INPUT}"
     return
 }
 
