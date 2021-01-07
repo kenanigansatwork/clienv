@@ -935,3 +935,15 @@ function vars()
     fi
     return
 }
+
+dirr () 
+{ 
+    local TARGET;
+    TARGET="${1:-"${PWD}"}";
+    if [[ ! -d "${TARGET}" ]]; then
+        _err;
+        return 1;
+    fi;
+    find "${TARGET}" -maxdepth 1 -mindepth 1 -type d -exec du -s {} \; | sort -nr | awk -v TARGET="${TARGET}" -Ft 'BEGIN{printf ("\n\t ::: SIZE LISTING IN: %s :::\n\n",TARGET)} $1>0{UNIT="MB";VALUE=($1*512/1000/1000); if (VALUE>2000) { VALUE=(VALUE/1000); UNIT="GB"; }; printf ("%10.2f %s: %s\n",VALUE,UNIT,$2)} END{printf ("\n\n")}' | sed -e "s:${HOME}/:~/:" | sed -E -e '4,$s|^(.*: )([[:print:]]*/)?([^/]+)$|\1\2[42;37;1m \3 [00m|';
+    return
+}
