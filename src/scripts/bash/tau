@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# tau
+
+CMD1 ()
+{
+    echo "this is CMD1"
+    return
+}
+
+CMD2 ()
+{
+    echo "this is CMD2"
+    return
+}
+
+CMD3 ()
+{
+    echo "this is CMD3"
+    return
+}
+
+
+
+declare -a ARGS
+ARGS="$@"
+
+declare -a COMMANDS
+COMMANDS=(
+    "CMD1"
+    "CMD2"
+    "CMD3"
+)
+
+if (( $# > 0 )); then
+    for ARG in "${@}"; do
+        #echo "ARG >> ${ARG}"
+        for CMD in "${COMMANDS[@]}"; do
+            #echo "CMD: ${CMD}"
+            if [[ "${ARG}" == "${CMD}" ]]; then
+                #printf '[COMMAND RECOGNIZED]: %s\n' "${CMD}"
+                case "${CMD}" in
+                    CMD1) CMD1;;
+                    CMD2) CMD2;;
+                    CMD3) CMD3;;
+                    :) _err;;
+                esac
+                break 2
+            fi
+        done
+    done
+fi
+
+
+# vim: fdm=indent
