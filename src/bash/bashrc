@@ -1004,7 +1004,7 @@ function lines ()
 
     local -i LINECOUNT
     LINECOUNT=$(echo "${INPUT}" \
-        | wc -c \
+        | wc -l \
         | trim)
     ((LINECOUNT--))
 
