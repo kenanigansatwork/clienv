@@ -1,8 +1,54 @@
 #!/usr/bin/env  bash
 # ~/bin/logg
 
+function _usage ()
+{
+    local MSG
+    MSG="USAGE: logg [-cvsh]"
+    printf '%s\n' "${MSG}"
+    return
+}
+
+function _prompt_to_clear ()
+{
+    local MSG
+    MSG="Are you sure you want to clear the log? (y/N) "
+    local -l REP
+    read -rp "${MSG}" REP
+    case "${REP:0:1}" in
+        y) > "${LOGFILE:?}";;
+        *) printf '[LOGG]: %s\n' "Aborting..."; exit 0;;
+    esac
+    if [[ -s "${LOGFILE}" ]]; then
+        _err "Error clearing log file -- ${LOGFILE}"
+        return 1
+    fi
+    return
+}
+
+function _view_log ()
+{
+    view "${LOGFILE:?}" \
+        || return 1
+    return 0
+}
+
 declare LOGFILE
+declare -u SENDER
 LOGFILE=~/.logg
+SENDER='LOGG'
+
+while getopts cvs:h OPT; do
+    case "$OPT" in
+        h) _usage; exit;;
+        s) SENDER="${OPTARG}";;
+        c) _prompt_to_clear; exit $?;;
+        v) _view_log; exit $?;;
+        *) continue;;
+    esac
+done
+shift $((OPTIND-1))
+
 [[ ! -r ~/.logg ]] && touch "${LOGFILE}"
 
 function hr () { ~/bin/horizontal_rule; }
@@ -14,7 +60,7 @@ if (( $(echo "${MSG}" | wc -l | tr -dc '0-9') > 1 )); then
     MSG="$(echo "$MSG" | sed 's/^/    /')"
 fi
 {
-    printf '%s [37;44;1m LOGG>> [00m %s\n' "$DATESTAMP" "$MSG"
+    printf '%s [37;44;1m %s>> [00m %s\n' "$DATESTAMP" "${SENDER}" "$MSG"
     hr
 } \
     2>&1 >> "${LOGFILE}"
