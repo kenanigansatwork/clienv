@@ -173,6 +173,7 @@
             validateAndSetLocationVariables "clienv" ~/Developer/repos/clienv
             validateAndSetLocationVariables "clienvbash" ~/Developer/repos/clienv/src/bash
             validateAndSetLocationVariables "dev" ~/Developer
+            validateAndSetLocationVariables "icloud" "${HOME}/Library/Mobile Documents/com~apple~CloudDocs"
             validateAndSetLocationVariables "scriptsold" ~/Developer/scripts
             validateAndSetLocationVariables "scripts" "${clienv:?}/src/scripts"
             validateAndSetLocationVariables "scriptssandbox" "${clienv:?}/src/scripts/_sandbox"
@@ -202,6 +203,15 @@
             validateAndSetLocationVariables "www" ~/public_html
         fi
     }
+
+
+if [[ -n "${icloud:-}" ]]; then
+    function icloud()
+    {
+        cd "${icloud}"
+        return
+    }
+fi
 
 shopt -s cdable_vars
 
@@ -945,5 +955,75 @@ dirr ()
         return 1;
     fi;
     find "${TARGET}" -maxdepth 1 -mindepth 1 -type d -exec du -s {} \; | sort -nr | awk -v TARGET="${TARGET}" -Ft 'BEGIN{printf ("\n\t ::: SIZE LISTING IN: %s :::\n\n",TARGET)} $1>0{UNIT="MB";VALUE=($1*512/1000/1000); if (VALUE>2000) { VALUE=(VALUE/1000); UNIT="GB"; }; printf ("%10.2f %s: %s\n",VALUE,UNIT,$2)} END{printf ("\n\n")}' | sed -e "s:${HOME}/:~/:" | sed -E -e '4,$s|^(.*: )([[:print:]]*/)?([^/]+)$|\1\2[42;37;1m \3 [00m|';
+    return
+}
+
+function lines ()
+{
+    local INPUT;
+    INPUT='';
+    
+    # SET THE INPUT
+    if [[ -z "${INPUT:-}" ]]; then
+        if [[ -p /dev/stdin ]];
+        then
+            INPUT="$(cat /dev/stdin)";
+            [[ -z "${INPUT}" ]] && return 11;
+        elif (($#>0)); then
+            INPUT="${*:?ERROR, no input detected}";
+        elif [[ -n "$(pbpaste)" ]]; then
+            INPUT="$(pbpaste)";
+        fi
+        [[ -z "${INPUT:-}" ]] && _err && return 12;
+    fi
+
+    local -i LINECOUNT
+    LINECOUNT=$(echo "${INPUT}" \
+        | wc -c \
+        | trim)
+    ((LINECOUNT--))
+
+    echo "LINES: ${LINECOUNT}"
+    echo "INPUT:"
+    echo "${INPUT}"
+
+    return
+}
+
+function chars ()
+{
+    local INPUT;
+    INPUT='';
+
+    local -i OPTIND
+    while getopts :p OPT; do
+        case "${OPT}" in
+            p) INPUT="$(pbpaste)";;
+            *) _err "invalid flag -- ${OPTARG}";;
+        esac
+    done
+    shift $((OPTIND-1))
+
+    if [[ -z "${INPUT:-}" ]]; then
+        if [[ -p /dev/stdin ]];
+        then
+            INPUT="$(cat /dev/stdin)";
+            [[ -z "${INPUT}" ]] && return 11;
+        elif (($#>0)); then
+            INPUT="${*:?ERROR, no input detected}";
+        elif [[ -n "$(pbpaste)" ]]; then
+            INPUT="$(pbpaste)";
+        fi
+        [[ -z "${INPUT:-}" ]] && _err && return 12;
+    fi
+
+    local -i CHARCOUNT
+    CHARCOUNT=$(echo "${INPUT}" \
+        | wc -c \
+        | trim)
+    ((CHARCOUNT--))
+
+    echo "LINES: ${CHARCOUNT}"
+    echo "INPUT: ${INPUT}"
     return
 }
