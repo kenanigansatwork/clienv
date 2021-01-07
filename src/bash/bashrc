@@ -325,6 +325,9 @@ shopt -s cdable_vars
     alias lm.='ls -md .[^$.]* 2> /dev/null'
     alias lll.='ls -ogdL .[^$.]* 2> /dev/null'
 
+    [[ -x ~/bin/horizontal_rule ]] \
+        && alias hr="${HOME}/bin/horizontal_rule"
+
     alias c='clear'
     alias x='exit'
     alias sbash='[ -r ~/.bash_profile ] && . ~/.bash_profile'
@@ -394,55 +397,55 @@ f1 () {
     return
 }
 
-function hr () {
-    local -i OPTIND rtstrlength; OPTIND=1; rtstrlength=4
-    local -i col; col=${COLUMNS:-$(tput cols)}
-    local hrstr delim headertext; hrstr=''; delim='_'; headertext='';
-    (( ${#delim} > 1 )) && delim="${delim:0:1}"
-    while getopts :d:h:PD OPT
-    do
-        case "${OPT}" in
-            d) delim="${OPTARG:0:1}"
-            ;;
-            D)
-                # include date
-                headertext="$(date +"%a %H:%M")"
-            ;;
-            P)
-                # include $PWD
-                headertext="${PWD}"
-            ;;
-            h) headertext="${OPTARG}"
-            ;;
-            :) _err "flag requires an argument -- ${OPTARG}"
-            ;;
-            *) _err "invalid option flag -- ${OPTARG}"
-            ;;
-        esac
-    done; shift $((OPTIND-1))
-    local text; text=''
-    if [[ -z "${headertext:-}" ]]; then
-        if (( $# > 0 )) ; then
-            text="${*}";
-        fi
-    else
-        text="${headertext}"
-    fi
-    (( ${#text} > col )) && { _err; return 2; }
-    for (( c = 0; c < $(( col - ${#text} - $((rtstrlength+2)) )); c++ )); do
-        hrstr="${hrstr}${delim}"
-    done
-    #if [[ -n "${text:-}" ]]; then hrstr+="[${text}]"
-    if [[ -n "${text:-}" ]]; then hrstr+=" ${text} "
-    else hrstr+="${delim}${delim}"
-    fi
-    for (( a = 0; a < rtstrlength; a++ )); do
-        hrstr+="${delim}"
-    done
-    (( ${#hrstr} != col )) && { _err; return 1; }
-    printf '%s\n' "${hrstr}"
-    return
-}
+#function hr () {
+#    local -i OPTIND rtstrlength; OPTIND=1; rtstrlength=4
+#    local -i col; col=${COLUMNS:-$(tput cols)}
+#    local hrstr delim headertext; hrstr=''; delim='_'; headertext='';
+#    (( ${#delim} > 1 )) && delim="${delim:0:1}"
+#    while getopts :d:h:PD OPT
+#    do
+#        case "${OPT}" in
+#            d) delim="${OPTARG:0:1}"
+#            ;;
+#            D)
+#                # include date
+#                headertext="$(date +"%a %H:%M")"
+#            ;;
+#            P)
+#                # include $PWD
+#                headertext="${PWD}"
+#            ;;
+#            h) headertext="${OPTARG}"
+#            ;;
+#            :) _err "flag requires an argument -- ${OPTARG}"
+#            ;;
+#            *) _err "invalid option flag -- ${OPTARG}"
+#            ;;
+#        esac
+#    done; shift $((OPTIND-1))
+#    local text; text=''
+#    if [[ -z "${headertext:-}" ]]; then
+#        if (( $# > 0 )) ; then
+#            text="${*}";
+#        fi
+#    else
+#        text="${headertext}"
+#    fi
+#    (( ${#text} > col )) && { _err; return 2; }
+#    for (( c = 0; c < $(( col - ${#text} - $((rtstrlength+2)) )); c++ )); do
+#        hrstr="${hrstr}${delim}"
+#    done
+#    #if [[ -n "${text:-}" ]]; then hrstr+="[${text}]"
+#    if [[ -n "${text:-}" ]]; then hrstr+=" ${text} "
+#    else hrstr+="${delim}${delim}"
+#    fi
+#    for (( a = 0; a < rtstrlength; a++ )); do
+#        hrstr+="${delim}"
+#    done
+#    (( ${#hrstr} != col )) && { _err; return 1; }
+#    printf '%s\n' "${hrstr}"
+#    return
+#}
 
 if declare -f hr &> /dev/null
 then
