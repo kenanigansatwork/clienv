@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# comm_exists
+
+{
+    declare -i XIT;XIT=-1
+    declare TARGETNAME
+    TARGETNAME="${1:?""}";
+    #command -v TARGETNAME 2> /dev/null >&2 && echo exists || echo not found
+    command -v "${TARGETNAME}" &> /dev/null
+    XIT=$?
+}
+
+exit ${XIT}
+
+# vim: fdm=indent nonu
