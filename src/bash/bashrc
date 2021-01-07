@@ -867,3 +867,24 @@ if _isMac; then
     fi
 
 fi
+
+function dir () 
+{ 
+    dirs -c
+    dirs -c
+    cd ~/Documents || return 42;
+    pushd ~/Desktop &> /dev/null;
+    pushd ~/Downloads &> /dev/null;
+    if [[ -d ~/Library/Mobile\ Documents ]] && cd ~/Library/Mobile\ Documents &> /dev/null; then
+        pushd "${PWD}" &> /dev/null;
+    fi;
+    cd ~ &> /dev/null;
+    echo "DIRS:"
+    dirs -v \
+        | sed "s:\~:${HOME}:" \
+        | sed '/Mobile Documents/s:\(Mobile Documents\)[[:blank:]]*$:\1 (iCloud):';
+    dirs -c
+    dirs -c
+    return
+}
+
