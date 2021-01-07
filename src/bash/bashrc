@@ -1067,3 +1067,42 @@ function brewupdate ()
     return;
 }
 
+function pull_repos () 
+{ 
+    function _find_git_dirs ()
+    {
+        find "${TARGET}" -type d -name ".git" -exec dirname {} \;
+        return
+    }
+
+    local -a visited_repos
+    visited_repos=()
+
+    local TARGET;
+    TARGET="${1:-"${dev:?}"}";
+    while IFS=$'\n' read REPO_DIR; do
+        BN="$(basename "${REPO_DIR}")"
+        if ! cd "${REPO_DIR}"; then
+            _err;
+            continue;
+        fi;
+        ~/bin/horizontal_rule -h "${BN}";
+        if ! git pull 2> /dev/null; then
+            printf '>> [NO UPDATES]\n';
+        fi
+
+        visited_repos+=( "${BN}" );
+
+        if ! cd ~-; then
+            _err;
+            break;
+        fi;
+    done \
+        < <(_find_git_dirs);
+    ~/bin/horizontal_rule;
+    printf '>> visited [%d] repos...\n' ${#visited_repos[@]};
+    echo "(${visited_repos[*]})"
+    ~/bin/horizontal_rule;
+    return
+}
+
