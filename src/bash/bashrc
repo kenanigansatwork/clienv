@@ -326,6 +326,12 @@ shopt -s cdable_vars globstar
         alias ls='ls --color=auto'
     fi
 
+    if _isMac && command -v 'osascript' &> /dev/null; then
+        alias scpt='osascript'
+        alias scpthere='osascript <<!'
+        alias scpth='osascript <<!'
+    fi
+
     alias dff='declare -f f 2> /dev/null'
     alias disks='/bin/df -PHl'
 
