@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+# output
+
+declare -A EMOJIS; EMOJIS=()
+EMOJIS['speaker']='🔊'
+EMOJIS['headphones']='🎧'
+
+function _get_current_output_device ()
+{
+    #echo "INTERNAL SPEAKERS: ${INTERNAL_SPEAKERS_NAME}"
+    declare CURRENT_OUTPUT_DEVICE
+    CURRENT_OUTPUT_DEVICE="$(/usr/local/bin/SwitchAudioSource -c)"
+    if [[ "${CURRENT_OUTPUT_DEVICE}" == "${INTERNAL_SPEAKERS_NAME}" ]]; then
+        #CURRENT_OUTPUT_DEVICE='laptop-speakers';
+        CURRENT_OUTPUT_DEVICE="${EMOJIS['speaker']}";
+    elif [[ "${CURRENT_OUTPUT_DEVICE}" == "${AIRPODS_NAME}" ]]; then
+        CURRENT_OUTPUT_DEVICE="${EMOJIS['headphones']}";
+    fi
+
+    printf '%s\n' "${CURRENT_OUTPUT_DEVICE}"
+    return
+}
+
+function _get_output_volume_level ()
+{
+    /usr/bin/osascript \
+        -e "set volSettings to (get volume settings)" \
+        -e "return output volume of volSettings"
+    return
+}
+
+function _get_output_volume_percentage ()
+{
+    level=$(_get_output_volume_level)
+    PERCENTAGE=$(echo "scale=1; ${level}/100*100" | bc)
+    echo "${PERCENTAGE}%" \
+        | sed -E -e 's/\.0[[:blank:]]*$//'
+    return
+}
+
+function _get_mute_status ()
+{
+    if [[ "${muteStatus:?}" == 'true' ]]; then
+    echo -e "MUTED ($(_get_output_volume_percentage))";
+        return 0;
+    else
+        return 1;
+    fi
+    return
+}
+
+declare INTERNAL_SPEAKERS_NAME AIRPODS_NAME PERCENTAGE muteStatus
+declare -i level
+
+INTERNAL_SPEAKERS_NAME='Built-in Output'
+AIRPODS_NAME='velcro-wallet'
+muteStatus="$(osascript -e "output muted of (get volume settings)")"
+
+declare OUTPUT
+OUTPUT="$(printf '%s: %s\n' \
+    "$(_get_current_output_device)" \
+    "$(_get_mute_status || _get_output_volume_percentage)")"
+
+echo -e "[46;30;1m ${OUTPUT} [00m"
+exit
+
+
