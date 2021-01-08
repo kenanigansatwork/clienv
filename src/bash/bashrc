@@ -320,8 +320,11 @@ shopt -s cdable_vars globstar
 { # USER ALIASES
 
     #shellcheck disable=2015
-    _isMac && alias ls='ls -hGT' \
-        || alias ls='ls --color=auto'
+    if _isMac; then
+        alias ls='ls -hGOU'
+    else
+        alias ls='ls --color=auto'
+    fi
 
     alias dff='declare -f f 2> /dev/null'
     alias disks='/bin/df -PHl'
