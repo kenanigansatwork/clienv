@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# get_current_wifi
+
+function get_connected_ssid ()
+{
+    local OUTPUT
+	OUTPUT="$(while IFS= read -r LINE; do
+		printf ' %s|' "${LINE}";
+	done < <(\
+		/System/Library/PrivateFrameworks/Apple80211.framework/Versions/A/Resources/airport -I \
+			| /usr/bin/fgrep 'SSID' \
+			| sort -d \
+			| /Users/kend/bin/trim \
+			| cut -d ' ' -f 2-\
+	) \
+	   | /Users/kend/bin/trim \
+	   | sed 's/[[:blank:]]*|[[:blank:]]*/|/g' \
+	   | sed 's/|$//' \
+ 	   | sed 's/|/ (/'  \
+       | sed 's/[[:blank:][:cntrl:]]*$/)/';)"
+    if (( VERBOSE > 0 )); then
+       echo  "${OUTPUT}"
+    else
+        echo "${OUTPUT}" \
+            | cut -d ' ' -f1
+    fi
+	return
+}
+
+get_connected_ssid
+exit 
+
+function get_current_wifi ()
+{
+    printf '📶:%s\n' "$(get_connected_ssid)";
+    return;
+}
+
+declare -i VERBOSE OPTIND; VERBOSE=0 OPTIND=1;
+while getopts :v OPT; do
+    case "${OPT}" in
+        v)
+            ((VERBOSE++))
+            ;;
+        *)
+            echo "ERROR: invalid flag -- \`${OPTARG}'" >&2
+            ;;
+    esac
+done
+shift $((OPTIND-1))
+
+get_current_wifi
+exit
+

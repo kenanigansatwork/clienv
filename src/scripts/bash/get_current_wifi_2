@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# get_current_wifi_2
+
+function _xx2 ()
+{
+    /System/Library/PrivateFrameworks/Apple80211.framework/Versions/A/Resources/airport -I | /usr/bin/fgrep 'SSID' | sort -d | trim | cut -d ' ' -f 2-
+    return
+}
+
+function _xx ()
+{
+    while IFS= read -r LINE; do
+        printf ' %s|' "${LINE}";
+    done < <(_xx2) \
+        | trim \
+        | sed 's/[[:blank:]]*|[[:blank:]]*/|/g' \
+        | sed 's/u|$//' \
+        | sed 's/|/ (/' \
+        | sed 's/[[:blank:][:cntrl:]]*$/)/'
+    return
+}
+
+printf '📶:%s\n' "$(_xx)";
+exit;
+
