@@ -178,10 +178,10 @@
 
             validateAndSetLocationVariables "scriptsold" ~/Developer/scripts
             validateAndSetLocationVariables "scripts" "${clienv:?}/src/scripts"
-            validateAndSetLocationVariables "scriptssandbox" "${clienv:?}/src/scripts/_sandbox"
+            validateAndSetLocationVariables "sandbox" "${clienv:?}/src/scripts/_sandbox"
             validateAndSetLocationVariables "scriptsbash" "${clienv:?}/src/scripts/bash"
             validateAndSetLocationVariables "bashscripts" "${clienv:?}/src/scripts/bash"
-            validateAndSetLocationVariables "shellscripts" ~/Developer/scripts/shell-scripts
+            validateAndSetLocationVariables "shellscripts" "${HOME}/Developer/scripts/shell-scripts"
             validateAndSetLocationVariables "repos" ~/Developer/repos
             validateAndSetLocationVariables "desk" ~/Desktop
             validateAndSetLocationVariables "docs" ~/Documentssssss
