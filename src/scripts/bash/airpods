@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-# airpods
-declare DEVICE_NAME
-DEVICE_NAME='velcro-wallet'
-
-/usr/local/bin/SwitchAudioSource -t output -s "${DEVICE_NAME}"
-

@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# airpods
+
+declare CURRENT
+CURRENT="$(/usr/local/bin/SwitchAudioSource -c 2> /dev/null)"
+declare DEVICE_NAME
+DEVICE_NAME='velcro-wallet'
+if [[ "${CURRENT}" == "${DEVICE_NAME}" ]]; then
+    echo "[airpods]: already set as output"
+else
+    /usr/local/bin/SwitchAudioSource -t output -s "${DEVICE_NAME}" &> /dev/null \
+        && echo SUCCESS \
+        || echo FAILED
+fi
+

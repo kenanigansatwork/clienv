@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# speakers
+
+declare CURRENT
+CURRENT="$(/usr/local/bin/SwitchAudioSource -c 2> /dev/null)"
+declare DEVICE_NAME
+DEVICE_NAME='Built-in Output';
+if [[ "${CURRENT}" == "${DEVICE_NAME}" ]]; then
+    echo "[speakers]: already set as output"
+else
+    /usr/local/bin/SwitchAudioSource -t output -s "${DEVICE_NAME}" &> /dev/null \
+        && echo SUCCESS \
+        || echo FAILED
+fi
