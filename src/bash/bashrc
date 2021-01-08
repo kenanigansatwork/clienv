@@ -924,12 +924,6 @@ function dir ()
     return
 }
 
-function get_current_wifi_2 ()
-{
-    printf '📶:%s\n' "$(while IFS= read -r LINE; do printf ' %s|' "${LINE}"; done < <(/System/Library/PrivateFrameworks/Apple80211.framework/Versions/A/Resources/airport -I | /usr/bin/fgrep 'SSID' | sort -d | trim | cut -d ' ' -f 2-) | trim | sed 's/[[:blank:]]*|[[:blank:]]*/|/g'  |sed 's/|$//' | sed 's/|/ (/'  | sed 's/[[:blank:][:cntrl:]]*$/)/')";
-    return;
-}
-
 function aliases()
 {
     printf '\n  ALIASES:\n'
