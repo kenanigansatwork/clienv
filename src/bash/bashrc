@@ -332,6 +332,10 @@ shopt -s cdable_vars globstar
         alias scpth='osascript <<!'
     fi
 
+    if [[ -x ~/bin/caffeinate ]]; then
+        alias caff='caffeinate -f'
+    fi
+
     alias dff='declare -f f 2> /dev/null'
     alias disks='/bin/df -PHl'
 
