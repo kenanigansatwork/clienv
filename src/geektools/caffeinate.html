@@ -5,12 +5,47 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>caffeinate</title>
   <style>
+    html,body {
+      font-family: "Roboto Mono", Menlo, "Courier New", monospace;
+      color: #FFF;
+      font-size: 12px;
+      width: 160px;
+    }
+    #siteContainer {
+      background-color: #333;
+    }
     #coffee {
-      width: 30px;
+      float: left;
+      height: 30px;
+      padding-left: 7px;
+      padding-top: 7px;
+      margin-left: -2px;
+      margin-top: -5px;
+    }
+    #datestamp {
+      line-height: 30px;
+      clear: none;
+      margin-left: 3.2em;
     }
   </style>
 </head>
 <body>
-  <img id="coffee" src="file:///Users/kend/Developer/repos/clienv/images/coffee/coffee_mug_7.png" alt="coffee mug">
+  <div id="siteContainer">
+    <img id="coffee" src="file:///Users/kend/Developer/repos/clienv/images/coffee/coffee_mug_2.png" alt="coffee mug">
+    <p id="datestamp"></p>
+  </div><!-- #siteContaiiner -->
+  <script>
+    (function(){
+      'use strict';
+      
+      function setDatestamp() {
+        let date = new Date();
+        document.querySelector("#datestamp").innerHTML = date.toDateString();
+        //document.querySelector("#datestamp").appendChild(document.createTextNode(date.toDateString());
+      }
+
+      window.addEventListener('load', setDatestamp, false);
+    }())
+  </script>
 </body>
 </html>
