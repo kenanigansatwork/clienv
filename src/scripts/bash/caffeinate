@@ -1,0 +1,124 @@
+#!/usr/bin/env bash
+# caffeinate
+
+function _usage ()
+{
+    local MSG
+    MSG="USAGE: caffeinate [-f]"
+    echo "${MSG}"
+    return
+}
+
+function _validate_clienv_dir ()
+{
+    if [[ ! -d "${clienv}" ]]; then
+        _err "\$clienv directory not found"
+        exit 11
+    fi
+    return
+}
+
+function _toggle_geektool_helper_group ()
+{
+    osascript "${clienv}/src/scripts/applescript/user_scripts_library_dir/toggle_caffeinate.scpt"
+    return
+}
+
+function _kill_caffeinate ()
+{
+    printf '[%s]: %s... ' "$(date +"%a %H:%M")" "caffeinate is terminating"
+    killall caffeinate;
+    if caffIsRunning; then
+        _err "something went wrong, unable to kill \`caffeinate'..."
+        exit 12
+    else
+        printf '[32;1m%s[00m\n' "SUCCESS (terminated)"
+    fi
+    _toggle_geektool_helper_group;
+    return
+}
+
+function _initialize_caffeinate ()
+{
+    printf '[%s]: %s... ' "$(date +"%a %H:%M")" "caffeinate is starting"
+    /usr/bin/caffeinate -dims &
+    if ! caffIsRunning; then
+        _err "something went wrong, unable to initialize \`caffeinate'..."
+        exit 13
+    else
+        printf '[32;1m%s[00m\n' "SUCCESS (running)"
+    fi
+    _toggle_geektool_helper_group
+    return
+}
+
+function _handle_opts ()
+{
+    case "${OPT}" in
+        f) FORCE_FLAG=1;;
+        h) _usage; exit;;
+        *) _err "invalid flag -- ${OPTARG}";;
+    esac
+    return
+}
+
+function _handle_caffeinate_is_running ()
+{
+    if (( FORCE_FLAG == 1 )); then
+        _kill_caffeinate
+        exit
+    else
+        read -rp "Toggle \`caffeinate' off? (y/N) " REP
+        case "${REP:0:1}" in
+            y) _kill_caffeinate;;
+            *) _err "aborting...";;
+        esac
+        exit
+    fi
+    return
+}
+
+function _handle_caffeinate_is_not_running ()
+{
+    if (( FORCE_FLAG == 1 )); then
+        _initialize_caffeinate
+        exit
+    else
+        read -rp "Toggle \`caffeinate' on? (y/N) " REP
+        case "${REP:0:1}" in
+            y) _initialize_caffeinate;;
+            *) _err "aborting...";;
+        esac
+        exit
+    fi
+    return
+}
+
+function caffIsRunning () 
+{
+    pgrep 'caffeinate' &> /dev/null;
+    return $?
+}
+
+declare -i FORCE_FLAG; FORCE_FLAG=0
+
+while getopts :hf OPT; do _handle_opts; done
+shift $((OPTIND-1))
+
+clienv='/Users/kend/Developer/repos/clienv'
+declare -r clienv
+_validate_clienv_dir
+
+declare -l REP # will use this to prompt user for action
+REP='';
+
+if caffIsRunning
+then
+    _handle_caffeinate_is_running
+else
+    _handle_caffeinate_is_not_running
+fi
+
+exit
+
+# vim: ft=sh fdm=indent
