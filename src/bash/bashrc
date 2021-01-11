@@ -407,7 +407,81 @@ shopt -s cdable_vars globstar
     if [[ -x /Applications/GeekTool.app ]] && _isMac
     then
         alias geektool='open -a "GeekTool"'
-        alias geek='open -a "GeekTool"'
+        #alias geek='open -a "GeekTool"'
+
+        function geeklets ()
+        {
+            osascript <<!
+tell application "GeekTool Helper"
+geeklets
+end tell
+!
+            return
+        }
+
+        function geek ()
+        {
+            function _refresh_geektool ()
+            {
+                osascript <<!
+tell application "GeekTool Helper" to refresh all
+!
+                return
+            }
+
+            function _open_geektool ()
+            {
+                open -a "GeekTool";
+                return
+            }
+
+            function _list_geeklets ()
+            {
+                local OLDIFS; OLDIFS="$IFS"
+                IFS=$'\n'
+                trap 'IFS="$OLDIFS}";' RETURN;
+                local -a allGeeklets
+                allGeeklets=( $(osascript <<! | sed 's:,[[:blank:]]*:|:g' | tr '|' '\n'
+tell application "GeekTool Helper" to geeklets
+!
+) )
+                if (( ${#allGeeklets[@]} > 0 )); then
+                    echo "GEEKLETS (${#allGeeklets[@]}):"
+                    for ((c=0;c<${#allGeeklets[@]};c++)); do
+                        geekletID="$(echo "${allGeeklets[$c]}" | sed 's:^.* ::')"
+                        thisGeekletName="$(echo "$(osascript -e "tell application \"GeekTool Helper\" to get name of geeklet id \"${geekletID}\"")")"
+#                        thisGeekletName="$(osascript <<!
+#get name of geeklet id ${geekletID}
+#!
+#)"
+                        geekletReference="$(echo "${allGeeklets[$c]}" | sed 's/^.* //')"
+                        if [[ "${thisGeekletName}" =~ (missing value) ]]; then
+                            thisGeekletName="[no name]"
+                        fi
+                        printf '  - %s (id: %s)\n' "${thisGeekletName}" "${geekletReference}"
+                    done
+                else
+                    echo "<< NO ACIVE GEEKLETS >>"
+                    return
+                fi
+                return
+            }
+
+            local -i OPTIND; OPTIND=1
+            while getopts :lro OPT; do
+                case "${OPT}" in
+                    r) _refresh_geektool; return;;
+                    l) _list_geeklets; return;;
+                    o) _open_geektool; return;;
+                    *) _err "invalid flag -- ${OPTARG}";;
+                esac
+            done; shift $((OPTIND-1))
+            if (( $# == 0 )); then
+                _open_geektool
+                return
+            fi
+            return
+        }
     fi
 
 }   # END USER ALIASES
