@@ -1190,3 +1190,45 @@ function pull_repos ()
     return
 }
 
+
+function update ()
+{
+    _get_update_list () { sudo softwareupdate --list --all 2>&1 > /dev/null; return; }
+
+    function _brewupdate ()
+    {
+        local -a CMDS;
+        CMDS=("brew update" "brew upgrade" "brew upgrade --cask" "brew doctor");
+        for CMD in "${CMDS[@]}";
+        do
+            ~/bin/horizontal_rule -h "EXE: ${CMD}";
+            eval "${CMD}";
+        done;
+        ~/bin/horizontal_rule;
+        return
+    }
+
+
+    function _software_update ()
+    {
+        hr -h "EXE: sudo softwareupdate --list --all"
+        local OUTPUT
+        OUTPUT="$(_get_update_list)"
+
+        if [[ "$OUTPUT" == 'No new software available.' ]]; then
+            echo "<< NO UPDATES AVAILABLE >>"
+            return
+        else
+            echo "UPDATES:"
+            echo "${OUTPUT}"
+            return
+        fi
+
+        return
+    }
+
+    _software_update
+    _brewupdate
+    return
+}
+
