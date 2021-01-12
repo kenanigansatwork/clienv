@@ -210,8 +210,11 @@
 if [[ -n "${icloud:-}" ]]; then
     function icloud()
     {
-        cd "${icloud}"
-        return
+        if ! cd "${icloud}"; then
+            _err "failed to move to iCloud directory"
+            return 11
+        fi
+        return 0
     }
 fi
 
@@ -358,7 +361,7 @@ shopt -s cdable_vars globstar
     fi
 
     [[ -x ~/bin/horizontal_rule ]] \
-        && alias hr="${HOME}/bin/horizontal_rule"
+        && alias hr="\${HOME}/bin/horizontal_rule"
 
     alias c='clear'
     alias x='exit'
@@ -388,6 +391,12 @@ shopt -s cdable_vars globstar
         alias fgrep='/usr/bin/fgrep --color=auto'
 
         alias appstore='open -a "App Store"';
+
+
+        if [[ -x "/System/Library/PrivateFrameworks/Apple80211.framework/Versions/A/Resources/airport" ]]
+        then
+            alias airport='/System/Library/PrivateFrameworks/Apple80211.framework/Versions/A/Resources/airport'
+        fi
     elif [[ "$(uname)" == 'Linux' ]]
     then
         alias grep='/bin/grep --color=auto'
@@ -399,16 +408,8 @@ shopt -s cdable_vars globstar
     #alias trunc='cut -c1-${COLUMNS:-$(tput cols)}';
     alias mkdir='mkdir -p'
 
-    if [[ -x "/System/Library/PrivateFrameworks/Apple80211.framework/Versions/A/Resources/airport" ]]
-    then
-        alias airport='/System/Library/PrivateFrameworks/Apple80211.framework/Versions/A/Resources/airport'
-    fi
-
-    if [[ -x /Applications/GeekTool.app ]] && _isMac
-    then
+    if [[ -x /Applications/GeekTool.app ]] && _isMac; then
         alias geektool='open -a "GeekTool"'
-        #alias geek='open -a "GeekTool"'
-
         function geeklets ()
         {
             osascript <<!
@@ -435,29 +436,32 @@ tell application "GeekTool Helper" to refresh all
                 return
             }
 
+            function _list_all_geeklets ()
+            {
+                osascript <<! | sed 's:,[[:blank:]]*:|:g' | tr '|' '\n'
+tell application "GeekTool Helper" to geeklets
+!
+                return
+            }
+
             function _list_geeklets ()
             {
                 local OLDIFS; OLDIFS="$IFS"
                 IFS=$'\n'
                 trap 'IFS="$OLDIFS}";' RETURN;
                 local -a allGeeklets
-                allGeeklets=( $(osascript <<! | sed 's:,[[:blank:]]*:|:g' | tr '|' '\n'
-tell application "GeekTool Helper" to geeklets
-!
-) )
+                mapfile allGeeklets < <(_list_all_geeklets)
+                #allGeeklets=( $(_get_geeklets) )
                 if (( ${#allGeeklets[@]} > 0 )); then
                     echo "GEEKLETS (${#allGeeklets[@]}):"
                     for ((c=0;c<${#allGeeklets[@]};c++)); do
-                        geekletID="$(echo "${allGeeklets[$c]}" | sed 's:^.* ::')"
-                        thisGeekletName="$(echo "$(osascript -e "tell application \"GeekTool Helper\" to get name of geeklet id \"${geekletID}\"")")"
-#                        thisGeekletName="$(osascript <<!
-#get name of geeklet id ${geekletID}
-#!
-#)"
-                        geekletReference="$(echo "${allGeeklets[$c]}" | sed 's/^.* //')"
-                        if [[ "${thisGeekletName}" =~ (missing value) ]]; then
-                            thisGeekletName="[no name]"
-                        fi
+                        #geekletID="$(echo "${allGeeklets[$c]}" | sed 's:^.* ::')"
+                        geekletID="${allGeeklets[${c}]%% }"
+                        thisGeekletName="$(osascript -e "tell application \"GeekTool Helper\" to get name of geeklet id \"${geekletID}\"")"
+                        #geekletReference="$(echo "${allGeeklets[$c]}" | sed 's/^.* //')"
+                        geekletReference="${allGeeklets[$c]##* }"
+                        [[ "${thisGeekletName}" =~ (missing value) ]] \
+                            && thisGeekletName="[no name]"
                         printf '  - %s (id: %s)\n' "${thisGeekletName}" "${geekletReference}"
                     done
                 else
@@ -597,6 +601,7 @@ function funcs ()
             fi
             (( MORE_FLAG == 1 )) \
                 && read -rp "<CR> to continue..." REP
+            echo "$REP" &> /dev/null
         done
         return
     }
@@ -999,12 +1004,12 @@ function dir ()
     dirs -c
     dirs -c
     cd ~/Documents || return 42;
-    pushd ~/Desktop &> /dev/null;
-    pushd ~/Downloads &> /dev/null;
+    pushd ~/Desktop &> /dev/null || return 43;
+    pushd ~/Downloads &> /dev/null || return 44;
     if [[ -d ~/Library/Mobile\ Documents ]] && cd ~/Library/Mobile\ Documents &> /dev/null; then
-        pushd "${PWD}" &> /dev/null;
+        if ! pushd "${PWD}" &> /dev/null; then return 46; fi;
     fi;
-    cd ~ &> /dev/null;
+    cd ~ &> /dev/null || return 45;
     echo "DIRS:"
     dirs -v \
         | sed "s:\~:${HOME}:" \
@@ -1164,7 +1169,7 @@ function pull_repos ()
 
     local TARGET;
     TARGET="${1:-"${dev:?}"}";
-    while IFS=$'\n' read REPO_DIR; do
+    while IFS=$'\n' read -r REPO_DIR; do
         BN="$(basename "${REPO_DIR}")"
         if ! cd "${REPO_DIR}"; then
             _err;
@@ -1193,7 +1198,8 @@ function pull_repos ()
 
 function update ()
 {
-    _get_update_list () { sudo softwareupdate --list --all 2>&1 > /dev/null; return; }
+    #shellcheck disable=2069
+    _get_update_list () { sudo softwareupdate --list --all 2>&1 1> /dev/null; return; }
 
     function _brewupdate ()
     {
