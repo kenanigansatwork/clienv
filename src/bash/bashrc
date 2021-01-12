@@ -18,7 +18,7 @@
         declare -ix DEBUG_LEVEL
         DEBUG_LEVEL=-2
     fi
-    (( DEBUG_LEVEL > -2 )) && printf '[DEBUG_LEVEL: %d]\n' "${DEBUG_LEVEL}"
+    (( DEBUG_LEVEL > -2 )) && /usr/bin/printf '[DEBUG_LEVEL: %d]\n' "${DEBUG_LEVEL}"
 
 #    function _err () {
 #        local -i OPTIND; OPTIND=1
@@ -35,7 +35,7 @@
 #        local msg header;
 #        msg="${*:-"an unspecified error occurred"}";
 #        header=" ${headerStr} ";
-#        printf ' %s%s%s %s%s%s\n' \
+#        /usr/bin/printf ' %s%s%s %s%s%s\n' \
 #            "${CLR_ERR_HEADER}" \
 #            "${header}" \
 #            "${CLR_RST}" \
@@ -109,7 +109,7 @@
         local msg header;
         msg="${*:?}";
         header="SUCCESS";
-        printf '  %s[ %s ]%s: %s\n' "${CLR_SUCCESS_HEADER}" "${header}" "${CLR_RST}" "${msg}" >&2;
+        /usr/bin/printf '  %s[ %s ]%s: %s\n' "${CLR_SUCCESS_HEADER}" "${header}" "${CLR_RST}" "${msg}" >&2;
         return 0
     }
     function _isMac () { if [[ "$(uname)" == 'Darwin' ]]; then return 0; fi; return 1; }
@@ -167,7 +167,7 @@
     }
 
     { # set location variables here
-        (( DEBUG_LEVEL >= 0 )) && printf '\n  [%s] => %s\n\n' 'clienv' 'setting location variables';
+        (( DEBUG_LEVEL >= 0 )) && /usr/bin/printf '\n  [%s] => %s\n\n' 'clienv' 'setting location variables';
 
         if _isMac; then
             validateAndSetLocationVariables "clienv" ~/Developer/repos/clienv
@@ -271,7 +271,7 @@ shopt -s cdable_vars globstar
 
     # DE-DUPE $PATH
     #shellcheck disable=2155
-    export PATH="$(echo -e "${PATH//:/\\n}" | uniq | tr '\n' ':' | sed 's/:$//')"
+    export PATH="$(echo -e "${PATH//:/\\n}" | uniq | tr '\n' ':' | /usr/bin/sed 's/:$//')"
 
     { # SET PROMPT VARIABLE (PS1)
 
@@ -306,7 +306,7 @@ shopt -s cdable_vars globstar
                 builtin echo
                 _err \
                     -h"ERROR (${xit}) [00;00;0m" \
-                    "[31m[last_command]:[00m [40;33m $(history 1 | sed 's:^[[:blank:]]*[0-9][0-9]*[[:blank:]]*\(.*$\):\1:') [00;00;0m";
+                    "[31m[last_command]:[00m [40;33m $(history 1 | /usr/bin/sed 's:^[[:blank:]]*[0-9][0-9]*[[:blank:]]*\(.*$\):\1:') [00;00;0m";
                 builtin echo
             fi
             return ${xit}
@@ -438,7 +438,7 @@ tell application "GeekTool Helper" to refresh all
 
             function _list_all_geeklets ()
             {
-                osascript <<! | sed 's:,[[:blank:]]*:|:g' | tr '|' '\n'
+                osascript <<! | /usr/bin/sed 's:,[[:blank:]]*:|:g' | tr '|' '\n'
 tell application "GeekTool Helper" to geeklets
 !
                 return
@@ -455,14 +455,14 @@ tell application "GeekTool Helper" to geeklets
                 if (( ${#allGeeklets[@]} > 0 )); then
                     echo "GEEKLETS (${#allGeeklets[@]}):"
                     for ((c=0;c<${#allGeeklets[@]};c++)); do
-                        #geekletID="$(echo "${allGeeklets[$c]}" | sed 's:^.* ::')"
+                        #geekletID="$(echo "${allGeeklets[$c]}" | /usr/bin/sed 's:^.* ::')"
                         geekletID="${allGeeklets[${c}]%% }"
                         thisGeekletName="$(osascript -e "tell application \"GeekTool Helper\" to get name of geeklet id \"${geekletID}\"")"
-                        #geekletReference="$(echo "${allGeeklets[$c]}" | sed 's/^.* //')"
+                        #geekletReference="$(echo "${allGeeklets[$c]}" | /usr/bin/sed 's/^.* //')"
                         geekletReference="${allGeeklets[$c]##* }"
                         [[ "${thisGeekletName}" =~ (missing value) ]] \
                             && thisGeekletName="[no name]"
-                        printf '  - %s (id: %s)\n' "${thisGeekletName}" "${geekletReference}"
+                        /usr/bin/printf '  - %s (id: %s)\n' "${thisGeekletName}" "${geekletReference}"
                     done
                 else
                     echo "<< NO ACIVE GEEKLETS >>"
@@ -554,20 +554,20 @@ f1 () {
 #        hrstr+="${delim}"
 #    done
 #    (( ${#hrstr} != col )) && { _err; return 1; }
-#    printf '%s\n' "${hrstr}"
+#    /usr/bin/printf '%s\n' "${hrstr}"
 #    return
 #}
 
 if declare -f hr &> /dev/null
 then
     alias rtstr='hr -d" " -h';
-    #alias rtdir='rtstr "$(echo "${PWD}" | sed "s:^/:root->:" | sed "s:root->${HOME#*/}/:home->:" | tr "/" "-")"';
-    alias rtdir='rtstr "$(echo "${PWD}" | sed "s:^/:root->:" | sed "s:root->${HOME#*/}/:home->:" | tr "/" "-")"';
+    #alias rtdir='rtstr "$(echo "${PWD}" | /usr/bin/sed "s:^/:root->:" | /usr/bin/sed "s:root->${HOME#*/}/:home->:" | tr "/" "-")"';
+    alias rtdir='rtstr "$(echo "${PWD}" | /usr/bin/sed "s:^/:root->:" | /usr/bin/sed "s:root->${HOME#*/}/:home->:" | tr "/" "-")"';
     alias rttime='rtstr "$(date +"%a %H:%M.%S")"';
     alias rtt='rtdir;rttime;';
     alias crtt='command clear && rtdir;rttime';
-    #alias crttt='rtstr "$(echo "${PWD}" | sed "s:^/:root->:" | sed "s:root->${HOME#*/}/:🏡 ➡:" | tr "/" "-") | $(date +"%a %H:%M.%S")"'
-    alias crttt='rtstr "$(echo -e "\\033[33;1m$(echo "${PWD}" | sed "s:^/:root->:" | sed "s:root->${HOME#*/}/:home->:" | tr "/" "-")\\033[00m \\033[1m|\\033[00m \\033[35;1m$(date +"%a %H:%M.%S")"\\033[00m)"'
+    #alias crttt='rtstr "$(echo "${PWD}" | /usr/bin/sed "s:^/:root->:" | /usr/bin/sed "s:root->${HOME#*/}/:🏡 ➡:" | tr "/" "-") | $(date +"%a %H:%M.%S")"'
+    alias crttt='rtstr "$(echo -e "\\033[33;1m$(echo "${PWD}" | /usr/bin/sed "s:^/:root->:" | /usr/bin/sed "s:root->${HOME#*/}/:home->:" | tr "/" "-")\\033[00m \\033[1m|\\033[00m \\033[35;1m$(date +"%a %H:%M.%S")"\\033[00m)"'
 fi
 
 function funcs ()
@@ -581,8 +581,8 @@ function funcs ()
     function _list_func ()
     {
         #~/bin/horizontal_rule -h "START_FUNC: ${funcname}"
-        printf '\n\t> [40;33;1m FUNC: [00m [45;37;1m %s [00m\n\n' "${funcname}";
-        printf '%s\n' "${OUTPUT:?}"
+        /usr/bin/printf '\n\t> [40;33;1m FUNC: [00m [45;37;1m %s [00m\n\n' "${funcname}";
+        /usr/bin/printf '%s\n' "${OUTPUT:?}"
         #printf '\n\t> [35;1mEND_FUNC:[00m [45;37;1m %s [00m\n\n' "${funcname}";
         ~/bin/horizontal_rule -h "END_FUNC: ${funcname}"
         return
@@ -619,12 +619,12 @@ function funcs ()
 aliases ()
 {
     _list_defs () {
-        printf '\033[45;37;1m ALIAS DEFS: \033[00m\n%s\n%s\n' "$(alias | cut -d' ' -f2- | awk -F"=" '{printf ("%15s   => %s\n",$1,$2)}')" "$(hr -d '-')";
+        /usr/bin/printf '\033[45;37;1m ALIAS DEFS: \033[00m\n%s\n%s\n' "$(alias | cut -d' ' -f2- | awk -F"=" '{printf ("%15s   => %s\n",$1,$2)}')" "$(hr -d '-')";
         return;
     }
 
     _list_names () {
-        printf '\033[45;37;1m ALIAS NAMES: \033[00m\n%s\n' "$(alias|cut -d' ' -f2- | sed 's/=.*$//' | sort | column)";
+        /usr/bin/printf '\033[45;37;1m ALIAS NAMES: \033[00m\n%s\n' "$(alias|cut -d' ' -f2- | /usr/bin/sed 's/=.*$//' | sort | column)";
         return;
     }
 
@@ -683,7 +683,7 @@ aliases ()
 #    ## INPUT verified
 #    local OUTPUT;
 #    OUTPUT="$(builtin echo "${INPUT}" \
-#        | sed -E -e 's/^[[:blank:]]*//' \
+#        | /usr/bin/sed -E -e 's/^[[:blank:]]*//' \
 #            -e 's/[[:blank:]]*$//')" \
 #     || return 12;
 #    [[ -z "${OUTPUT:-}" ]] && return 13;
@@ -720,7 +720,7 @@ then
                 local -i output_count;
                 #shellcheck disable=2126
                 output_count=$(builtin echo "${lvl_output}" | grep -v '^[[:blank:]]*$' | wc -l | tr -dc '0-9');
-                printf '\t%8s: %s\n' "${l}" "${output_count}";
+                /usr/bin/printf '\t%8s: %s\n' "${l}" "${output_count}";
                 if ! (( output_count == 0 )); then
                     builtin echo "${lvl_output}";
                 fi;
@@ -767,7 +767,7 @@ function paths () {
     _list_verbose() {
         hr
         _output_path
-        printf '\n  %s:\n\n%s\n\n' \
+        /usr/bin/printf '\n  %s:\n\n%s\n\n' \
             "PATHS" \
             "$(_numbered_list)"
         hr
@@ -824,14 +824,14 @@ function clienv () {
             a)
                 # list all src files
                 find "$clienv/src" -type f \
-                    | sed 's/^.*\(clienv\)/\1/';
+                    | /usr/bin/sed 's/^.*\(clienv\)/\1/';
                 return;
             ;;
             b)
                 #shellcheck disable=2046,2086
                 command grep '/usr/bin/env bash' $(find $clienv/src -type f) \
-                    | sed 's/^\(.*\):.*$/\1/' | sort | uniq \
-                    | sed 's/^.*\(clienv\)/\1/';
+                    | /usr/bin/sed 's/^\(.*\):.*$/\1/' | sort | uniq \
+                    | /usr/bin/sed 's/^.*\(clienv\)/\1/';
                 return;
             ;;
             n)
@@ -843,7 +843,7 @@ function clienv () {
                         echo "${FILEPATH}";
                     fi
                 done < <(find "$clienv/src" -type f) \
-                    | sed 's/^.*\(clienv\)/\1/';
+                    | /usr/bin/sed 's/^.*\(clienv\)/\1/';
                 return;
             ;;
             v)
@@ -873,7 +873,7 @@ function clienv () {
     then
         { # output report
             hr -d'-';
-            printf '  => PWD: %s\n' "$PWD"
+            /usr/bin/printf '  => PWD: %s\n' "$PWD"
             if (( VERBOSITY > 1 ));
             then
                 _msg "STATUS:";
@@ -1012,8 +1012,8 @@ function dir ()
     cd ~ &> /dev/null || return 45;
     echo "DIRS:"
     dirs -v \
-        | sed "s:\~:${HOME}:" \
-        | sed '/Mobile Documents/s:\(Mobile Documents\)[[:blank:]]*$:\1 (iCloud):';
+        | /usr/bin/sed "s:\~:${HOME}:" \
+        | /usr/bin/sed '/Mobile Documents/s:\(Mobile Documents\)[[:blank:]]*$:\1 (iCloud):';
     dirs -c
     dirs -c
     return
@@ -1021,11 +1021,11 @@ function dir ()
 
 function aliases()
 {
-    printf '\n  ALIASES:\n'
+    /usr/bin/printf '\n  ALIASES:\n'
     alias \
-        | sed -E -e 's/^alias +//' -e 's/=.*$//' \
+        | /usr/bin/sed -E -e 's/^alias +//' -e 's/=.*$//' \
         | column
-    printf '\n'
+    /usr/bin/printf '\n'
     return
 }
 
@@ -1033,11 +1033,11 @@ function vars()
 {
     _list_out_var_names ()
     {
-        printf '\n  VARIABLES:\n\n';
+        /usr/bin/printf '\n  VARIABLES:\n\n';
         {
             set \
-                | sed -E -e '/^{/,$d' \
-                | sed -E -e '$d'; env;
+                | /usr/bin/sed -E -e '/^{/,$d' \
+                | /usr/bin/sed -E -e '$d'; env;
         } \
             | awk -F"=" '{print $1}' \
             | grep -v '^_$' \
@@ -1045,7 +1045,7 @@ function vars()
             | uniq \
             | grep -E -v -e '^[[:punct:][:blank:]]$' \
             | column;
-        printf '\n\n';
+        /usr/bin/printf '\n\n';
         return;
     }
 
@@ -1055,7 +1055,7 @@ function vars()
         for varname in "$@"; do
             local VALUE;
             VALUE="${!varname:-"<NULL>"}"
-            printf -- '-> [%s]: %s\n' "${varname}" "${VALUE}"
+            /usr/bin/printf -- '-> [%s]: %s\n' "${varname}" "${VALUE}"
         done
     fi
     return
@@ -1177,7 +1177,7 @@ function pull_repos ()
         fi;
         ~/bin/horizontal_rule -h "${BN}";
         if ! git pull 2> /dev/null; then
-            printf '>> [NO UPDATES]\n';
+            /usr/bin/printf '>> [NO UPDATES]\n';
         fi
 
         visited_repos+=( "${BN}" );
@@ -1189,7 +1189,7 @@ function pull_repos ()
     done \
         < <(_find_git_dirs);
     ~/bin/horizontal_rule;
-    printf '>> visited [%d] repos...\n' ${#visited_repos[@]};
+    /usr/bin/printf '>> visited [%d] repos...\n' ${#visited_repos[@]};
     echo "(${visited_repos[*]})"
     ~/bin/horizontal_rule;
     return
