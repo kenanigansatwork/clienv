@@ -347,10 +347,12 @@ shopt -s cdable_vars globstar
 
     alias la='ls -A'
     alias ll='ls -og'
+    alias lt='ls -t'
     alias lla='ls -ogA'
     alias l1='ls -1'
     alias lm='ls -m'
     alias l.='ls -d .[^$.]* 2> /dev/null'
+    alias lt.='ls -dt .[^$.]* 2> /dev/null'
     alias ll.='ls -ogd .[^$.]* 2> /dev/null'
     alias l1.='ls -1d .[^$.]* 2> /dev/null'
     alias lm.='ls -md .[^$.]* 2> /dev/null'
