@@ -358,6 +358,17 @@ shopt -s cdable_vars globstar
 
     if command -v git &> /dev/null; then
         alias gits='git s'
+        if command -v git-cal &> /dev/null
+        then
+            gitcal () 
+            { 
+                /usr/bin/printf '\n%s\n%s\n\n' \
+                    "$(/usr/bin/git cal | /usr/bin/sed -E '/(Total commits)/,$d')" \
+                    "$(hr)"
+
+                return
+            }
+        fi
     fi
 
     [[ -x ~/bin/horizontal_rule ]] \
@@ -371,17 +382,6 @@ shopt -s cdable_vars globstar
     alias shutdownh='sudo command shutdown -h now'
     alias shutdownr='sudo command shutdown -r now'
 
-    if command -v git-cal &> /dev/null
-    then
-        gitcal () 
-        { 
-            /usr/bin/printf '\n%s\n%s\n\n' \
-                "$(/usr/bin/git cal | /usr/bin/sed -E '/(Total commits)/,$d')" \
-                "$(hr)"
-
-            return
-        }
-    fi
 
 
     if _isMac;
