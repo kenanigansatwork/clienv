@@ -52,11 +52,26 @@ function _initialize_caffeinate ()
     return
 }
 
+function _status ()
+{
+    local id
+    id="$(pgrep caffeinate 2> /dev/null)"
+    if [[ -n "${id:-}" ]]; then
+        printf "\\n'caffeinate' IS an active process:\\n"
+        printf '\n%s\n\n' "$(ps -jp "${id}" | sed -E -e 's/^/>>	/')"
+    else
+        #echo "'caffeinate' is not an active process"
+        _err "'caffeinate' is not an active process"
+    fi
+    return
+}
+
 function _handle_opts ()
 {
     case "${OPT}" in
         f) FORCE_FLAG=1;;
         h) _usage; exit;;
+        s) _status; exit;;
         *) _err "invalid flag -- ${OPTARG}";;
     esac
     return
@@ -102,7 +117,7 @@ function caffIsRunning ()
 
 declare -i FORCE_FLAG; FORCE_FLAG=0
 
-while getopts :hf OPT; do _handle_opts; done
+while getopts :hfs OPT; do _handle_opts; done
 shift $((OPTIND-1))
 
 clienv='/Users/kend/Developer/repos/clienv'
