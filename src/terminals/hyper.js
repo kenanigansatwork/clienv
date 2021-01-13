@@ -9,12 +9,12 @@ module.exports = {
     updateChannel: 'stable',
 
     // default font size in pixels for all tabs
-    fontSize: 13,
+    fontSize: 14,
 
     // font family with optional fallbacks
     //fontFamily: '"Source Code Pro", "Menlo, "Roboto Mono", "Source Code Pro", "Ubunto Mono", "DejaVu Sans Mono", Consolas, "Lucida Console", monospace',
     // fontFamily: 'Menlo, "Roboto Mono", "Source Code Pro", "Ubunto Mono", "DejaVu Sans Mono", Consolas, "Lucida Console", monospace',
-    fontFamily: '"Syne Mono", monospace',
+    fontFamily: '"Fira Mono", "Space Mono", "Sometype Mono", "Syne Mono", monospace',
 
     // default font weight: 'normal' or 'bold'
     fontWeight: 400,
@@ -23,10 +23,10 @@ module.exports = {
     fontWeightBold: 400,
 
     // line height as a relative unit
-    lineHeight: 1,
+    lineHeight: 1.2,
 
     // letter spacing as a relative unit
-    letterSpacing: 1,
+    letterSpacing: 0.7,
 
     // terminal cursor background color and opacity (hex, rgb, hsl, hsv, hwb or cmyk)
     //cursorColor: 'rgba(248,28,229,0.8)',
@@ -46,7 +46,7 @@ module.exports = {
 
     // terminal background color
     // opacity is only supported on macOS
-    backgroundColor: 'rgba(10,10,10,0.90)',
+    backgroundColor: 'rgba(45,45,45,0.94)',
 
     // terminal selection color
     selectionColor: 'rgba(248,28,229,0.4)',
