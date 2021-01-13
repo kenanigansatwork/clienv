@@ -1241,3 +1241,115 @@ function update ()
     return
 }
 
+function loggr () 
+{ 
+    function _is_loggr_already_running ()
+    {
+        /bin/ps -jp "$(\
+            /bin/ps -opid,ppid,command \
+                | /usr/bin/grep "${HOME}/.fifo" \
+                | grep -v "$$" \
+                | cut -d' ' -f1-2 \
+                | /usr/bin/sed -e 's/^.* //' \
+                | /usr/bin/sed -n '2p' \
+                | tr -d '\n')"
+        return
+    }
+
+    function break_fifo ()
+    {
+        if [[ -p ~/.fifo ]]; then
+            /usr/bin/printf '[loggr]: %s\n' "ending \`loggr' session"
+            echo "BREAK" >> ~/.fifo
+            return
+        else
+            _err
+            return 42
+        fi
+        return
+    }
+
+    local -i OPTIND
+    OPTIND=1
+
+    while getopts :b OPT; do
+        case "${OPT}" in
+            b)
+                # break
+                break_fifo
+                return
+                ;;
+            *)
+                _err "invalid flag -- ${OPTARG}"
+                ;;
+        esac
+    done
+    shift $((OPTIND-1))
+
+    declare -i BREAK_FLAG;
+    BREAK_FLAG=0;
+    local FIFO_FILE;
+    FIFO_FILE="${HOME}/.fifo";
+    [[ -e "$FIFO_FILE" ]] && rm "$FIFO_FILE";
+
+    mkfifo "$FIFO_FILE";
+    if [[ ! -p ~/.fifo ]];then
+        echo "NO PIPE ${FIFO_FILE}"
+        return
+    fi
+
+    while ((BREAK_FLAG != 1)); do
+        while IFS= read -r LINE; do
+            CMD="${LINE%% *}";
+            if [[ "${CMD}" =~ (break|BREAK) ]]; then
+                BREAK_FLAG=1;
+            fi;
+            /usr/bin/printf '[%s]: %s\n' "$(date +"%a %H:%M")" "${LINE}";
+            ((BREAK_FLAG==1)) && /usr/bin/printf '\n\t>> got the BREAK flag. exiting.\n\n';
+        done < <(cat ~/.fifo);
+    done;
+    return
+}
+
+function update ()
+{
+    _get_update_list () { sudo softwareupdate --list --all 2>&1 > /dev/null; return; }
+
+    function _brewupdate ()
+    {
+        local -a CMDS;
+        CMDS=("brew update" "brew upgrade" "brew upgrade --cask" "brew doctor");
+        for CMD in "${CMDS[@]}";
+        do
+            ~/bin/horizontal_rule -h "EXE: ${CMD}";
+            eval "${CMD}";
+        done;
+        ~/bin/horizontal_rule;
+        return
+    }
+
+
+    function _software_update ()
+    {
+        hr -h "EXE: sudo softwareupdate --list --all"
+        local OUTPUT
+        OUTPUT="$(_get_update_list)"
+
+        if [[ "$OUTPUT" == 'No new software available.' ]]; then
+            echo "<< NO UPDATES AVAILABLE >>"
+            return
+        else
+            echo "UPDATES:"
+            echo "${OUTPUT}"
+            return
+        fi
+
+        return
+    }
+
+    _software_update
+    _brewupdate
+    return
+}
+
+#vim: fdm=indent
