@@ -173,9 +173,10 @@
             validateAndSetLocationVariables "clienv" ~/Developer/repos/clienv
             validateAndSetLocationVariables "clienvbash" ~/Developer/repos/clienv/src/bash
             validateAndSetLocationVariables "dev" ~/Developer
-            [[ -x "${HOME}/Library/Mobile Documents/com~apple~CloudDocs" ]] \
-                && validateAndSetLocationVariables "icloud" "${HOME}/Library/Mobile Documents/com~apple~CloudDocs"
-
+            if [[ -x "${HOME}/Library/Mobile Documents/com~apple~CloudDocs" ]]; then
+                validateAndSetLocationVariables "icloud" "${HOME}/Library/Mobile Documents/com~apple~CloudDocs"
+                validateAndSetLocationVariables "pythonista" "${HOME}/Library/Mobile Documents/iCloud~com~omz-software~Pythonista3"
+            fi
             validateAndSetLocationVariables "scriptsold" ~/Developer/scripts
             validateAndSetLocationVariables "scripts" "${clienv:?}/src/scripts"
             validateAndSetLocationVariables "sandbox" "${clienv:?}/src/scripts/_sandbox"
@@ -347,6 +348,7 @@ shopt -s cdable_vars globstar
 
     alias la='ls -A'
     alias ll='ls -og'
+    alias llt='ls -tog'
     alias lt='ls -t'
     alias lla='ls -ogA'
     alias l1='ls -1'
