@@ -20,30 +20,8 @@
     fi
     (( DEBUG_LEVEL > -2 )) && /usr/bin/printf '[DEBUG_LEVEL: %d]\n' "${DEBUG_LEVEL}"
 
-#    function _err () {
-#        local -i OPTIND; OPTIND=1
-#        local headerStr; headerStr='ERROR';
-#        while getopts :h: OPT; do
-#            case "${OPT}" in
-#                h) headerStr="${OPTARG}";;
-#                :) _err "flag requires an argument -- \`${OPTARG}'";;
-#                *) _err "invalid option flag -- \`${OPTARG}'";;
-#            esac
-#        done
-#        shift $((OPTIND-1));
-#
-#        local msg header;
-#        msg="${*:-"an unspecified error occurred"}";
-#        header=" ${headerStr} ";
-#        /usr/bin/printf ' %s%s%s %s%s%s\n' \
-#            "${CLR_ERR_HEADER}" \
-#            "${header}" \
-#            "${CLR_RST}" \
-#            "${CLR_ERR_TXT}" \
-#            "${msg}" \
-#            "${CLR_RST}" >&2;
-#        return 0
-#    }
+    {
+        function _err () {
 
     function _msg () {
         local -i leadingLine trailingLine OPTIND;
@@ -176,6 +154,7 @@
                 validateAndSetLocationVariables "icloud" "${HOME}/Library/Mobile Documents/com~apple~CloudDocs"
                 validateAndSetLocationVariables "pythonista" "${HOME}/Library/Mobile Documents/iCloud~com~omz-software~Pythonista3"
             fi
+            
             validateAndSetLocationVariables "scriptsold" ~/Developer/scripts
             validateAndSetLocationVariables "scripts" "${clienv:?}/src/scripts"
             validateAndSetLocationVariables "sandbox" "${clienv:?}/src/scripts/_sandbox"
