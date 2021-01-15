@@ -20,19 +20,42 @@
     fi
     (( DEBUG_LEVEL > -2 )) && /usr/bin/printf '[DEBUG_LEVEL: %d]\n' "${DEBUG_LEVEL}"
 
+    function _msg ()
     {
-        function _err () {
+        # function _err () {
+        #     local -i OPTIND; OPTIND=1
+        #     local headerStr; headerStr='ERROR';
+        #     while getopts :h: OPT; do
+        #         case "${OPT}" in
+        #             h) headerStr="${OPTARG}";;
+        #             :) _err "flag requires an argument -- \`${OPTARG}'";;
+        #             *) _err "invalid option flag -- \`${OPTARG}'";;
+        #         esac
+        #     done
+        #     shift $((OPTIND-1));
+        #     local msg header;
+        #     msg="${*:-"an unspecified error occurred"}";
+        #     header=" ${headerStr} ";
+        #     /usr/bin/printf ' %s%s%s %s%s%s\n' \
+        #         "${CLR_ERR_HEADER}" \
+        #         "${header}" \
+        #         "${CLR_RST}" \
+        #         "${CLR_ERR_TXT}" \
+        #         "${msg}" \
+        #         "${CLR_RST}" >&2;
+        #     return 0
+        # }
 
-    function _msg () {
-        local -i leadingLine trailingLine OPTIND;
+        local -i leadingLine trailingLine OPTIND indentFlag;
         OPTIND=1
         leadingLine=0;  # will prepend line if == 1
         trailingLine=0;  # will append line if == 1
+        indentFlag=0;  # will indent if == 1
 
         # handle options
-        while getopts :l: OPT;
-        do
+        while getopts :l:i OPT; do
             case "${OPT}" in
+                i) indentFlag=1;;
                 l)
                     # lines
                     case "${OPTARG}" in
@@ -74,6 +97,11 @@
         then OUTPUT+='\n'
         fi
 
+        if (( indentFlag ==1 ))
+        then
+            OUTPUT="$(echo -e "${OUTPUT}" | sed -E 's|^|	|')"
+        fi
+
         #printf '  %s %s %s: %s%s%s\n' \
             #"${CLR_MSG_HEADER}" "${header}" "${CLR_RST}" \
             #"${CLR_MSG_TXT}" "${msg}" "${CLR_RST}" >&2;
@@ -82,7 +110,8 @@
         return 0
     }
 
-    function _success () {
+    function _success ()
+    {
         local msg header;
         msg="${*:?}";
         header="SUCCESS";
@@ -104,7 +133,11 @@
             builtin trap '(( DEBUG == 1 )) && /usr/bin/printf "removing temp file (${tmpfile})... "; if /bin/rm "${tmpfile}"; then (( DEBUG == 1 )) && /bin/echo SUCCESS; else (( DEBUG == 1 )) && /bin/echo FAILED; fi;' RETURN;
             (( DEBUG == 1 )) && /usr/bin/printf '\n  > [DEBUG]: TEMPFILE -- %s\n\n' "${tmpfile}";
             /usr/sbin/system_profiler -detailLevel mini -xml SPSoftwareDataType > "${tmpfile}";
-            /usr/bin/plutil -p "${tmpfile}" | /usr/bin/sed -n '/^[[:blank:]]*"_name"/,/^[[:blank:]]*"uptime"/p' | /usr/bin/tr -d '"' | /usr/bin/sed 's/^[[:blank:]][[:blank:]]*_*\([^[:blank:]]*\)  *=>  *\(.*$\)/\1|\2/' | /usr/bin/awk -F"|" 'BEGIN{printf "\nSYSTEM INFO:\n"}{printf ("- %*s %s\n",-15,$1":",$2)}';
+            /usr/bin/plutil -p "${tmpfile}" \
+                | /usr/bin/sed -n '/^[[:blank:]]*"_name"/,/^[[:blank:]]*"uptime"/p' \
+                | /usr/bin/tr -d '"' \
+                | /usr/bin/sed 's/^[[:blank:]][[:blank:]]*_*\([^[:blank:]]*\)  *=>  *\(.*$\)/\1|\2/' \
+                | /usr/bin/awk -F"|" 'BEGIN{printf "\nSYSTEM INFO:\n"}{printf ("- %*s %s\n",-15,$1":",$2)}';
             builtin echo;
             return
         }
@@ -136,6 +169,7 @@
             (( DEBUG_LEVEL >= 0 )) && _err "name has already been set previously -- ${!NAME}"
             return 2
         fi
+
         eval "${NAME}=\"${DIR}\""
         if [[ -n "${!NAME}" && "${!NAME}" == "${DIR}" ]]; then
             _location_variables["${NAME}"]="${DIR}"
@@ -150,11 +184,15 @@
             validateAndSetLocationVariables "clienv" ~/Developer/repos/clienv
             validateAndSetLocationVariables "clienvbash" ~/Developer/repos/clienv/src/bash
             validateAndSetLocationVariables "dev" ~/Developer
+
             if [[ -x "${HOME}/Library/Mobile Documents/com~apple~CloudDocs" ]]; then
                 validateAndSetLocationVariables "icloud" "${HOME}/Library/Mobile Documents/com~apple~CloudDocs"
                 validateAndSetLocationVariables "pythonista" "${HOME}/Library/Mobile Documents/iCloud~com~omz-software~Pythonista3"
             fi
             
+            if [[ -x "${clienv:?}/src/bash/bashrc.d/functions"  ]]; then
+                validateAndSetLocationVariables "funcs" "${clienv:?}/src/bash/bashrc.d/function"
+            fi
             validateAndSetLocationVariables "scriptsold" ~/Developer/scripts
             validateAndSetLocationVariables "scripts" "${clienv:?}/src/scripts"
             validateAndSetLocationVariables "sandbox" "${clienv:?}/src/scripts/_sandbox"
@@ -170,15 +208,13 @@
             validateAndSetLocationVariables "proj" ~/Projects
             validateAndSetLocationVariables "var" /private/var
             validateAndSetLocationVariables "etc" /private/etc
-            if [[ -d /usr/local ]];
-            then
+            if [[ -d /usr/local ]]; then
                 validateAndSetLocationVariables "uvar" /usr/local/var
                 validateAndSetLocationVariables "uetc" /usr/local/etc
                 validateAndSetLocationVariables "uetc2" /usr/local/etcc
                 validateAndSetLocationVariables "uetc" /usr/local/
             fi
-        elif [[ "$(uname)" == 'Linux' ]]
-        then
+        elif [[ "$(uname)" == 'Linux' ]]; then
             validateAndSetLocationVariables "repos" ~/repos
             validateAndSetLocationVariables "clienv" ~/repos/clienv
             validateAndSetLocationVariables "www" ~/public_html
@@ -186,18 +222,18 @@
     }
 
 
-if [[ -n "${icloud:-}" ]]; then
-    function icloud()
-    {
-        if ! cd "${icloud}"; then
-            _err "failed to move to iCloud directory"
-            return 11
-        fi
-        return 0
-    }
-fi
+    if [[ -n "${icloud:-}" ]]; then
+        function icloud()
+        {
+            if ! cd "${icloud}"; then
+                _err "failed to move to iCloud directory"
+                return 11
+            fi
+            return 0
+        }
+    fi
 
-shopt -s cdable_vars globstar
+    shopt -s cdable_vars globstar failglob
 
     if (( ${#_location_variable_errors[@]} > 0 )); then
         (( DEBUG_LEVEL >= 0 )) && _err "location variable assignment errors occurred (${#_location_variable_errors[@]})"
@@ -236,8 +272,7 @@ shopt -s cdable_vars globstar
     export LESSHISTSIZE=10000
     export EDITOR='vim'
 
-    if [[ -d /usr/local/sbin ]] \
-        && ! builtin echo "$PATH" | grep -q "/usr/local/sbin"
+    if [[ -d /usr/local/sbin ]] && ! builtin echo "$PATH" | grep -q "/usr/local/sbin"
     then
         export PATH="${PATH:+"${PATH}:"}/usr/local/sbin"
     fi
@@ -250,7 +285,7 @@ shopt -s cdable_vars globstar
 
     # DE-DUPE $PATH
     #shellcheck disable=2155
-    export PATH="$(echo -e "${PATH//:/\\n}" | uniq | tr '\n' ':' | /usr/bin/sed 's/:$//')"
+    export PATH="$(echo -e "${PATH//fu:/\\n}" | uniq | tr '\n' ':' | /usr/bin/sed 's/:$//')"
 
     { # SET PROMPT VARIABLE (PS1)
 
@@ -353,8 +388,9 @@ shopt -s cdable_vars globstar
         fi
     fi
 
-    [[ -x ~/bin/horizontal_rule ]] \
-        && alias hr="\${HOME}/bin/horizontal_rule"
+    if [[ -x ~/bin/horizontal_rule ]]; then
+        alias hr="\${HOME}/bin/horizontal_rule"
+    fi
 
     alias c='clear'
     alias x='exit'
@@ -363,8 +399,6 @@ shopt -s cdable_vars globstar
     alias shutdown='sudo command shutdown -h now'
     alias shutdownh='sudo command shutdown -h now'
     alias shutdownr='sudo command shutdown -r now'
-
-
 
     if _isMac;
     then
@@ -490,54 +524,6 @@ f1 () {
     return
 }
 
-#function hr () {
-#    local -i OPTIND rtstrlength; OPTIND=1; rtstrlength=4
-#    local -i col; col=${COLUMNS:-$(tput cols)}
-#    local hrstr delim headertext; hrstr=''; delim='_'; headertext='';
-#    (( ${#delim} > 1 )) && delim="${delim:0:1}"
-#    while getopts :d:h:PD OPT
-#    do
-#        case "${OPT}" in
-#            d) delim="${OPTARG:0:1}"
-#            ;;
-#            D)
-#                # include date
-#                headertext="$(date +"%a %H:%M")"
-#            ;;
-#            P)
-#                # include $PWD
-#                headertext="${PWD}"
-#            ;;
-#            h) headertext="${OPTARG}"
-#            ;;
-#            :) _err "flag requires an argument -- ${OPTARG}"
-#            ;;
-#            *) _err "invalid option flag -- ${OPTARG}"
-#            ;;
-#        esac
-#    done; shift $((OPTIND-1))
-#    local text; text=''
-#    if [[ -z "${headertext:-}" ]]; then
-#        if (( $# > 0 )) ; then
-#            text="${*}";
-#        fi
-#    else
-#        text="${headertext}"
-#    fi
-#    (( ${#text} > col )) && { _err; return 2; }
-#    for (( c = 0; c < $(( col - ${#text} - $((rtstrlength+2)) )); c++ )); do
-#        hrstr="${hrstr}${delim}"
-#    done
-#    #if [[ -n "${text:-}" ]]; then hrstr+="[${text}]"
-#    if [[ -n "${text:-}" ]]; then hrstr+=" ${text} "
-#    else hrstr+="${delim}${delim}"
-#    fi
-#    for (( a = 0; a < rtstrlength; a++ )); do
-#        hrstr+="${delim}"
-#    done
-#    (( ${#hrstr} != col )) && { _err; return 1; }
-#    /usr/bin/printf '%s\n' "${hrstr}"
-#    return
 #}
 
 if declare -f hr &> /dev/null
