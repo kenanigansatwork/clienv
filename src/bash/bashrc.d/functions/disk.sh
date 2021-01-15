@@ -44,6 +44,12 @@ disk ()
             | /usr/bin/tr -d '\n';
         return;
     };
+    function _get_boot_disk_info ()
+    {
+        /bin/df -lPH | tr '\t' ' ' | tr -s ' ' | sed -E -n -e '/(Data)$/p' -e '1p' | sed -E -e '1s/ (on)$/_\1/'
+        return
+    }
+
     local -a headers values;
     mapfile headers < <(/bin/df -lPH | tr '\t' ' ' | tr -s ' ' | sed -E -n -e '/(Data)$/p' -e '1p' | sed -E -e '1s/ (on)$/_\1/' | sed -n '1p');
     mapfile values < <(/bin/df -lPH | tr '\t' ' ' | tr -s ' ' | sed -E -n -e '/(Data)$/p' -e '1p' | sed -E -e '1s/ (on)$/_\1/' | sed -n '2p');
