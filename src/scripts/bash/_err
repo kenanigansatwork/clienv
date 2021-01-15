@@ -16,3 +16,30 @@ msg="${*:-"an unspecified error occurred"}";
 header=" ${headerStr} ";
 printf ' %s%s%s %s%s%s\n' "${CLR_ERR_HEADER}" "${header}" "${CLR_RST}" "${CLR_ERR_TXT}" "${msg}" "${CLR_RST}" 1>&2;
 exit 0
+
+
+# ORIGINAL FUNCTION:
+function _original_err_function () {
+    local -i OPTIND; OPTIND=1
+    local headerStr; headerStr='ERROR';
+    while getopts :h: OPT; do
+        case "${OPT}" in
+            h) headerStr="${OPTARG}";;
+            :) _err "flag requires an argument -- \`${OPTARG}'";;
+            *) _err "invalid option flag -- \`${OPTARG}'";;
+        esac
+    done
+    shift $((OPTIND-1));
+
+    local msg header;
+    msg="${*:-"an unspecified error occurred"}";
+    header=" ${headerStr} ";
+    /usr/bin/printf ' %s%s%s %s%s%s\n' \
+        "${CLR_ERR_HEADER}" \
+        "${header}" \
+        "${CLR_RST}" \
+        "${CLR_ERR_TXT}" \
+        "${msg}" \
+        "${CLR_RST}" >&2;
+    return 0
+}
