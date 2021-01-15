@@ -20,6 +20,7 @@ colorscheme spacecamp
 "colorscheme edge
 
 
+set foldmethod=indent
 
 set tabstop=4 shiftwidth=4 softtabstop=4
 set expandtab
