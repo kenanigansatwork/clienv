@@ -1,0 +1,152 @@
+#!/usr/bin/env bash
+# repos
+
+function _usage ()
+{
+    local MSG
+    MSG='USAGE: repos -[rRhuU]'
+    echo "${MSG}"
+    return
+}
+
+if [[ ! -d ~/Developer ]]; then
+    _err "Developer directory was not found -- ~/Developer"
+    exit 11
+elif [[ ! -x ~/bin/horizontal_rule ]]; then
+    _err "dependency not found -- ~/bin/horizontal_rule"
+    exit 12
+fi
+
+function find_git_repo_directories ()
+{
+    /usr/bin/find ~/Developer -type d -name ".git" -exec dirname {} \;
+    return
+}
+
+function update_each_repo ()
+{
+    echo UPDATING
+    echo "${REPOS[*]}"
+    return
+    for REPO in "${REPOS[@]}"; do
+        local BN
+        BN="$(basename "${REPO}")"
+        if ! cd "${REPO}" &> /dev/null; then
+            ~/bin/horizontal_rule -h "${BN}"
+            _err "unable to move to repo directory -- ${REPO}"
+            continue;
+        fi
+
+        ~/bin/horizontal_rule -h "${BN}"
+        local CMD; CMD='git pull'
+        echo "[repos]: executing... ${CMD}"
+        if ! cd ~-; then
+            _err "[repos]: fatal error, script was stuck in repo directory -- ${repo}"
+            break
+        fi
+        continue
+    done
+    return
+}
+
+function quick_report ()
+{
+    printf '[repos]: %s\n' 'detecting current repos...'
+
+    IFS="${OLDIFS}"
+    trap 'IFS=$"\n";' RETURN
+
+    local dir bn
+    local -i REPO_COUNT
+    dir="$(echo "${repo}" | tr -d '\n')"
+    bn="$(basename "${dir}")"
+    dir="${dir/${HOME}/\~}"
+    REPO_COUNT=${#REPOS[@]}
+
+    echo "[repos]: There were [${REPO_COUNT}] git repositories found."
+    return
+}
+
+function report_all_repo_info ()
+{
+    IFS="${OLDIFS}"
+    trap 'IFS=$"\n";' RETURN
+
+    ~/bin/horizontal_rule -h '[REPOS]'
+    echo "REPOS (${#REPOS[@]}):"
+    for REPO in "${REPOS[@]}"; do
+        local dir bn
+        dir="$(echo "${REPO}" | tr -d '\n')"
+        bn="$(basename "${dir}")"
+        dir="${dir/${HOME}/\~}"
+        printf '  - %*s\t[%s]\n' -30 "${bn}" "${dir}"
+    done
+    ~/bin/horizontal_rule
+    echo
+    return
+}
+
+function begin_processing_repos ()
+{
+    IFS="${OLDIFS}"
+    trap 'IFS=$"\n";' RETURN
+
+    if (( REPORT_FLAG == 0 )); then
+        update_each_repo
+    else
+        if (( REPORT_FLAG == 1 )); then
+            quick_report
+        elif (( REPORT_FLAG == 2 )); then
+            report_all_repo_info
+        fi
+    fi
+    return
+}
+
+function handle_option_flags ()
+{
+    case "${OPT}" in
+        r)
+            REPORT_FLAG=1 # 
+            ;;
+        R)
+            REPORT_FLAG=2
+            ;;
+        U)
+            update_each_repo
+            exit
+            ;;
+        u|h)
+            _usage
+            exit
+            ;;
+        *)
+            _err "invalid flag -- ${OPTARG}"
+            ;;
+    esac
+    return
+}
+
+declare OLDIFS;
+OLDIFS="${IFS}";
+IFS=$'\n';
+
+declare -i REPORT_FLAG
+REPORT_FLAG=0
+
+while getopts :rRhUu OPT; do
+    handle_option_flags
+done
+shift $((OPTIND-1))
+
+find_git_repo_directories
+exit
+declare -a REPOS
+mapfile REPOS < <(find_git_repo_directories)
+echo "[${$#REPOS[@]}]: ${REPOS[*]}" >&2
+
+begin_processing_repos
+
+exit
+
+# vim: ft=sh fdm=indent
