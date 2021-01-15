@@ -53,12 +53,23 @@ function _create_executable_file ()
     echo " SUCCESS";
 
     # populate new file with template
-    cat <<! > "${TARGET}"
+    if [[ -z "${DESCRIPTION:-}" ]]; then
+        cat <<! > "${TARGET}"
 #!/usr/bin/env bash
 # $(basename "${TARGET}")
 
 
 !
+    else
+        cat <<! > "${TARGET}"
+#!/usr/bin/env bash
+# $(basename "${TARGET}")
+# 
+# DESC: ${DESCRIPTION}
+
+
+!
+    fi
     return
 }
 
@@ -83,8 +94,49 @@ function _set_and_verify_vars ()
     return
 }
 
+function _handle_opt_argsWith_no_args()
+{
+    local OPT_FLAG
+    OPT_FLAG="${1:?}" || return 2
+    case "${OPTARG}" in
+        d)
+            ## prompt for DESCRIPTION
+            read -rp "Enter a description (or <ENTER> to move on) > " RESPONSE
+            if [[ -n "${RESPONSE:-}" ]]; then
+                DESCRIPTION="${RESPONSE}"
+            else
+                printf '> %s\n' 'skipping description...' >&2
+            fi
+        *)
+            _err "option flag \`${OPT_FLAG}' requires an argument"
+            ;;
+    esac
+
+function _handle_opt_flags()
+{
+    case "${OPT}" in
+        u) _usage; exit;;
+        d)
+            # set description
+            DESCRIPTION="${OPTARG}"
+            ;;
+        :) _handle_opt_argsWith_no_args "${OPTARG}";;
+        *) _err "invalid flag -- ${OPTARG}";;
+    esac
+    return
+}
+
 declare FN BASH_SCRIPT_DIR TARGET TARGET_LINK
 declare -l REP;
+
+declare DESCRIPTION
+DESCRIPTION=''
+
+while getopts :ud: OPT; do
+    _handle_opt_flags
+done
+
+shift $((OPTIND-1))
 
 _set_and_verify_vars "${1:-}"
 
@@ -109,3 +161,4 @@ _prompt_to_edit
 
 exit
 
+# vim: ft=sh fdm=indent
