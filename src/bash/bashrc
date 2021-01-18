@@ -184,15 +184,18 @@
             validateAndSetLocationVariables "clienv" ~/Developer/repos/clienv
             validateAndSetLocationVariables "clienvbash" ~/Developer/repos/clienv/src/bash
             validateAndSetLocationVariables "dev" ~/Developer
+            validateAndSetLocationVariables "blockparty" ~/Developer/repos/blockparty
 
             if [[ -x "${HOME}/Library/Mobile Documents/com~apple~CloudDocs" ]]; then
                 validateAndSetLocationVariables "icloud" "${HOME}/Library/Mobile Documents/com~apple~CloudDocs"
                 validateAndSetLocationVariables "pythonista" "${HOME}/Library/Mobile Documents/iCloud~com~omz-software~Pythonista3"
+                validateAndSetLocationVariables "readdledocs" "${HOME}/Library/Mobile Documents/3L68KQB4HG~com~readdle~CommonDocuments/Documents"
             fi
-            
+
             if [[ -x "${clienv:?}/src/bash/bashrc.d/functions"  ]]; then
                 validateAndSetLocationVariables "funcs" "${clienv:?}/src/bash/bashrc.d/function"
             fi
+
             validateAndSetLocationVariables "scriptsold" ~/Developer/scripts
             validateAndSetLocationVariables "scripts" "${clienv:?}/src/scripts"
             validateAndSetLocationVariables "sandbox" "${clienv:?}/src/scripts/_sandbox"
@@ -225,9 +228,26 @@
     if [[ -n "${icloud:-}" ]]; then
         function icloud()
         {
+            local icloud_app_folder_dir
+            icloud_app_folder_dir="$(dirname "${icloud}")"
+
             if ! cd "${icloud}"; then
                 _err "failed to move to iCloud directory"
                 return 11
+            else
+                echo "NOW IN iCloud directory: ${PWD}"
+            fi
+
+            if (( $# > 0 )); then
+                for ARG in "$@"; do
+                    hr -h "$ARG"
+                    local CMD
+                    CMD="{ echo \"${icloud_app_folder_dir}/${ARG}\"*; } 2> /dev/null \
+                        && echo FOUND \
+                        || _err \"DIR NOT FOUND: ${ARG}\""
+                    eval "${CMD}"
+                done
+                hr
             fi
             return 0
         }
@@ -997,19 +1017,35 @@ function aliases()
     return
 }
 
-function vars()
+function vars ()
 {
-    _list_out_var_names ()
-    {
-        /usr/bin/printf '\n  VARIABLES:\n\n';
-        {
+    function _print_raw_list () 
+    { 
+        { 
             set \
                 | /usr/bin/sed -E -e '/^{/,$d' \
-                | /usr/bin/sed -E -e '$d'; env;
+                | /usr/bin/sed -E -e '$d';
+            env
         } \
+            | sed -E -e 's|[[:cntrl:]]\[[0-9;]+m||g';
+        return
+    }
+
+    function _print_raw_names_list ()
+    {
+        _print_raw_list \
+            | sort -d \
+            | awk -F"=" '{print $1}'
+        return
+    }
+
+    function _list_out_var_names ()
+    {
+        /usr/bin/printf '\n  VARIABLES:\n\n';
+        _print_raw_list \
             | awk -F"=" '{print $1}' \
             | grep -v '^_$' \
-            | sort \
+            | sort -d \
             | uniq \
             | grep -E -v -e '^[[:punct:][:blank:]]$' \
             | column;
@@ -1017,13 +1053,71 @@ function vars()
         return;
     }
 
-    if (( $# == 0 )); then
-        _list_out_var_names
-    else
+    function _print_report ()
+    {
+        return
+    }
+
+    function _usage ()
+    {
+        local MSG
+        MSG='\nUSAGE: vars -[rlfu]'
+        local -a OPTS; OPTS=(
+            'r|l:print output as single column'
+            'f:print the var names in formatted columns'
+            'u|h:print this usage statement'
+        )
+        MSG+='\nOPTION FLAGS:\n'
+        for LINE in "${OPTS[@]}"; do
+            OPTFLAG="${LINE%%:*}"
+            OPTDEF="${LINE##*:}"
+            MSG+="  -${OPTFLAG}: "
+            MSG+="${OPTDEF}"
+            MSG+='\n'
+        done
+        MSG+='\n'
+        echo -ne "${MSG}"
+        return
+    }
+
+    function _print_names_list ()
+    {
+        local -a VARNAMES;
+        local -x OLDIFS; OLDIFS="${IFS}"
+        [[ "${OLDIFS}" != "${IFS}" ]] && return 42;
+        trap '[[ "${IFS}" != "${OLDIFS}" ]] && IFS="${OLDIFS}"; [[ "${IFS}" != "${OLDIFS}" ]] && _err "IFS ERR";' RETURN
+        mapfile VARNAMES < <(_print_raw_names_list)
+        for V in "${VARNAMES[@]}"; do
+            echo "${V}" | grep -E -v '^[[:blank:]]*$';
+        done
+        return
+    }
+
+    local -i OPTIND; OPTIND=1
+    while getopts :rlfuh OPT; do
+        case "${OPT}" in
+            f) _list_out_var_names; return;;
+            l|r) _print_raw_list; return;;
+            u|h) _usage; return;;
+            :) _err "invalid flag -- ${OPTARG}";;
+        esac
+    done; shift $((OPTIND-1));
+
+    # if no early return, then no opt flags were passed
+    # remaining args should be seen as list of vars to print out
+
+    if (( $# > 0 )); then
         for varname in "$@"; do
             local VALUE;
-            VALUE="${!varname:-"<NULL>"}"
-            /usr/bin/printf -- '-> [%s]: %s\n' "${varname}" "${VALUE}"
+            VALUE="${!varname:-}"
+            local VARNAMECOLOR;
+            if [[ -z "${VALUE:-}" ]]; then
+                VARNAMECOLOR='33;41';
+                VALUE="[41;37;1m <NOT SET> [00m";
+            else
+                VARNAMECOLOR='32';
+            fi
+            /usr/bin/printf -- '-> [[%sm%s[00m]: %s\n' "${VARNAMECOLOR}" "${varname}" "${VALUE}"
         done
     fi
     return
@@ -1316,5 +1410,99 @@ function update ()
     _brewupdate
     return
 }
+
+if [[ -n "${_location_variables[@]:0:1}" ]]; then
+    function locations ()
+    {
+        printf '\n  [LOCATIONS:]\n\n'
+        for LOC_KEY in "${!_location_variables[@]}"; do
+            printf '  %*s -> %s\n' -30 "[${LOC_KEY}]" "${_location_variables[${LOC_KEY}]}";
+        done
+        echo
+        return
+    }
+fi
+
+if command -v brew &> /dev/null; then
+    function br ()
+    {
+        function _list_command ()
+        {
+            local -l list_target
+            list_target="${OPTARG:0:1}"
+            case "${list_target}" in
+                f)
+                    printf '\n  [HOMEBREW FORMULAS]:\n'
+                    brew list -1 --formula
+                    return
+                    ;;
+                c)
+                    printf '\n  [HOMEBREW CASKS]:\n'
+                    brew list -1 --cask
+                    return
+                    ;;
+                b)
+                    printf '%s\n  [%s]:\n%s\n\n' \
+                        "$(hr)" "FORMULAS" "$(brew list -1 --formula)" \
+                        "$(hr)" "CASKS" "$(brew list -1 --cask)"
+                    hr
+                    return
+                    ;;
+                *)
+                    _err "argument to the \`l' flag -- ${OPTARG}"
+                    ;;
+            esac
+            return
+        }
+
+        function _case_opt_flags ()
+        {
+            case "${OPT}" in
+                l)
+                    # if passed with argument, then
+                    #   - argument should specify listing one of:
+                    #       - formulas
+                    #       - casks
+                    #       - both
+                    _list_command
+                    return $?
+                    ;;
+                :)
+                    _err "flag requires an argument -- \`-${OPTARG}'"
+                    ;;
+                *) _err "invalid flag -- ${OPTARG}";;
+            esac
+            return
+        }
+
+        function _prompt_user_action_selection ()
+        {
+            select action in "update "{formulas,casks} "search "{formulas,casks} abort; do
+                if [[ -z "${action:-}" && -n "${REPLY:-}" ]]; then
+                    action="${REPLY}"
+                else
+                    _err "no action was specified";
+                    return 42;
+                fi
+                printf '\n\t[selected action]: %s\n\n' "${action}"
+                break
+            done
+            printf '\tExiting...\n'
+            return
+        }
+
+        #_print_raw_list
+        local -i OPTIND; OPTIND=1
+        while getopts :l: OPT; do
+            _case_opt_flags
+        done;
+        shift $((OPTIND-1))
+
+        _prompt_user_action_selection
+
+        printf '\tExiting...\n'
+        return 0
+    }
+fi
 
 #vim: fdm=indent
