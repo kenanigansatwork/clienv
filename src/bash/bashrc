@@ -1514,4 +1514,14 @@ if command -v brew &> /dev/null; then
     }
 fi
 
+list () 
+{ 
+    printf '[40;33;1m >> PWD: %s [00;00m\n' "${PWD}";
+    ls -hGOU -d .[^$.]* 2> /dev/null;
+    ${HOME}/bin/horizontal_rule;
+    CLICOLOR_FORCE= /bin/ls -GTOlh 2> /dev/null | sed '1d';
+    ${HOME}/bin/horizontal_rule;
+    return
+}
+
 #vim: fdm=indent
