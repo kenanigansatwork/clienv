@@ -204,7 +204,7 @@
             validateAndSetLocationVariables "shellscripts" "${HOME}/Developer/scripts/shell-scripts"
             validateAndSetLocationVariables "repos" ~/Developer/repos
             validateAndSetLocationVariables "desk" ~/Desktop
-            validateAndSetLocationVariables "docs" ~/Documentssssss
+            validateAndSetLocationVariables "docs" ~/Documents
             validateAndSetLocationVariables "dl" ~/Downloads
             validateAndSetLocationVariables "sites" ~/Sites
             validateAndSetLocationVariables "favs" ~/Library/Favorites
