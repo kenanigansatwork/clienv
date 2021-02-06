@@ -1525,3 +1525,49 @@ list ()
 }
 
 #vim: fdm=indent
+
+function colors ()
+{
+
+    return
+}
+
+function diskspace ()
+{
+    df -PlH | tr '\t' ' ' | tr -s ' ' | sed '1d' | sort -t' ' -r -k5 | tr -d '%' | awk '
+    $5>=90{
+        printf ("[41;37;1m %4d%% [00m %s\n",$5,$NF)
+    }
+    $5>=75 && $5<90{
+        printf (" [43;30;1m %4d%% [00m %s\n",$5,$NF)
+    }
+    $5>=50 && $5<75{
+        printf (" [40;33;1m %4d%% [00m %s\n",$5,$NF)
+    }
+    $5<50{
+        printf (" %4d%% %s\n",$5,$NF)
+    }
+' | sort -k1 -r | sed 's| /[[:blank:]]*$| [46;37;1m [macSSD] [00m|' | sed -E '1i\
+\
+[40;33;1m DISK SPACE: [00;00m\
+' | sed -E '$a\
+\
+' | sed 's/^/	/';
+    return
+}
+
+function pcopy ()
+{
+    local LINE;
+    LINE="${*:-}"
+    [[ -z "${LINE:-}" ]] && return 1
+    LINE="$(echo "${LINE}" | sed -n '1p' | tr -d '\n')"
+    printf '%s' "$LINE" | pbcopy
+    if ! pbpaste | grep -E -q '\n' && [[ "$(pbpaste)" == "${LINE}" ]]; then
+        _msg "successfully copied: ${LINE}"
+    else
+        _err "error copying line: ${LINE}"
+        return 2
+    fi
+    return
+}
