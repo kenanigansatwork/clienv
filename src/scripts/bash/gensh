@@ -107,17 +107,19 @@ function _handle_opt_argsWith_no_args()
             else
                 printf '> %s\n' 'skipping description...' >&2
             fi
+            ;;
         *)
             _err "option flag \`${OPT_FLAG}' requires an argument"
             ;;
     esac
+    return;
+}
 
 function _handle_opt_flags()
 {
     case "${OPT}" in
         u) _usage; exit;;
-        d)
-            # set description
+        d)  # set description
             DESCRIPTION="${OPTARG}"
             ;;
         :) _handle_opt_argsWith_no_args "${OPTARG}";;
@@ -133,7 +135,7 @@ declare DESCRIPTION
 DESCRIPTION=''
 
 while getopts :ud: OPT; do
-    _handle_opt_flags
+    _handle_opt_flags "$@";
 done
 
 shift $((OPTIND-1))
