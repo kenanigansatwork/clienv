@@ -29,3 +29,5 @@ set number
 set ruler
 set modeline modelines=2
 
+set nowrap
+set hls
