@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# print_location_variables
+
+print_location_variables () 
+{ 
+    for KEY in "${!_location_variables[@]}";
+    do
+        printf '  %*s -> %s\n' -20 "${KEY}" "${_location_variables[${KEY}]}";
+    done | sort | sed -E -e '1i\
+\
+		[LOCATION VARIABLES]:\
+' -e '$a\
+\
+';
+    return
+}

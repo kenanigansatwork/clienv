@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# tree_1
+
+t1 ()
+{
+    local TARGET;
+    TARGET="${1:-"${PWD}"}";
+    tree -L 1 -sI ".*" -i --noreport "${TARGET}" \
+        | sed -E -e '1d' \
+        | sed -E -e 's/\[//' -e 's/\]//' \
+        | trim \
+        | tr '\t' ' ' \
+        | tr -s ' ' \
+        | awk -F" " '
+            {
+                BYTES=$1;
+                KB=(BYTES/1000);
+                SIZE_UNIT="KB";
+                ITEM="";
+                for (c=2;c<=NF;c++) {
+                    if (ITEM=="") {
+                        ITEM=$c;
+                    } else {
+                        ITEM=ITEM" "$c;
+                    }
+                }
+                printf ("%6.2f KB -> %s\n",KB,ITEM)
+            }
+        ';
+    return
+}
+

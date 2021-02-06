@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# getFileLineCount
+
+getFileLineCount () 
+{ 
+    local -i OFFSET OPTIND;
+    OFFSET=0; OPTIND=1;
+    while getopts :o: OPT; do
+        case "${OPT}" in
+            o) OFFSET="${OPTARG}";;
+            :) _err "flag requires an argument (\`-${OPTARG}')";;
+            *) _err "invalid flag -- ${OPTARG}";;
+        esac
+    done; shift $(( OPTIND - 1 ));
+    # one more parameter should remain, and it should be the target file
+    local TARGET
+    TARGET="${1:?"target file to count was not specified as the last parameter"}"
+    echo $(( $(wc -l "${TARGET}" | tr -dc '0-9\n') - OFFSET ))
+    return
+}
+

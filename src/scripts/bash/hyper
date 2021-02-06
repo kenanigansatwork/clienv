@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# hyper
+# 
+# DESC: wrapper for `/usr/local/bin/hyper`
+
+HYPER_BIN=/usr/local/bin/hyper
+declare -xr HYPER_BIN
+
+[[ ! -e ${HYPER_BIN:?} || ! --x ${HYPER_BIN} ]] \
+    && exit 11;
+
+while getopts :ue OPT; do
+    case "${OPT}" in
+        u)
+            # print usage
+            echo "USAGE: hyper -[OPTIONS]";
+            exit
+            ;;
+        e)
+            # edit hyper config file (hyper.js)
+            #${EDITOR:-vim} "${HYPER_BIN}"
+            printf '[hyper]: %s -- %s\n' \
+                'editing config file in VS Code ' \
+                "${HOME}/.hyper.js...";
+            if /usr/local/bin/code "${HYPER_BIN}"; then
+                echo "[hyper]:  SUCCESS"\!
+                exit
+            else
+                _err "[hyper] / an error occurred while editing the hyper config file."
+                exit 12
+            fi
+            ;;
+        *)
+            ~/bin/_err "invalid flag -- ${OPTARG}" > /dev/null
+            ;;
+    esac
+done
+shift $((OPTIND-1));
+
+# if no exit, run the original binary
+
+"${HYPER_BIN}"
+
+exit
+

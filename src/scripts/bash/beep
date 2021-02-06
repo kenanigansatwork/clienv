@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# beep
+# 
+# DESC: play a beep, and/or get system info
+
+
+declare -i BEEP_COUNT; BEEP_COUNT=${1:-1};
+(( BEEP_COUNT <= 0 )) || return ${BEEP_COUNT}
+(( BEEP_COUNT > 5 )) && BEEP_COUNT=5
+
+function _list_all_sounds ()
+{
+    return
+}
+
+if (( $# > 0 )); then
+    declare -i OPTIND; OPTIND=1;
+    while getopts :c:l OPT; do
+        case "${OPT}" in
+            l)
+                # list all sounds
+                _list_all_sounds
+                exit
+                ;;
+            c)
+                BEEP_COUNT=${OPTARG}
+                ;;
+            *)
+                ~/bin/_err "invalid flag -- ${OPTARG}";
+                ;;
+        esac
+    done
+fi
+
+for ((c=0; c<BEEP_COUNT; c++)); do
+    beep 1
+    delay 0.5
+done
+
+exit
+
