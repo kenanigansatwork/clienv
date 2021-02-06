@@ -9,18 +9,18 @@ module.exports = {
     updateChannel: 'stable',
 
     // default font size in pixels for all tabs
-    fontSize: 14,
+    fontSize: 12,
 
     // font family with optional fallbacks
     //fontFamily: '"Source Code Pro", "Menlo, "Roboto Mono", "Source Code Pro", "Ubunto Mono", "DejaVu Sans Mono", Consolas, "Lucida Console", monospace',
     // fontFamily: 'Menlo, "Roboto Mono", "Source Code Pro", "Ubunto Mono", "DejaVu Sans Mono", Consolas, "Lucida Console", monospace',
-    fontFamily: '"Fira Mono", "Space Mono", "Sometype Mono", "Syne Mono", monospace',
+    fontFamily: '"Fira Code", "Sometype Mono", "Fira Mono", "Space Mono", "Syne Mono", monospace',
 
     // default font weight: 'normal' or 'bold'
     fontWeight: 400,
 
     // font weight for bold characters: 'normal' or 'bold'
-    fontWeightBold: 400,
+    fontWeightBold: 800,
 
     // line height as a relative unit
     lineHeight: 1.2,
@@ -42,17 +42,17 @@ module.exports = {
     cursorBlink: true,
 
     // color of the text
-    foregroundColor: 'rgba(255,255,255,1)',
+    foregroundColor: '#FFF', //'rgba(255,255,255,1)',
 
     // terminal background color
     // opacity is only supported on macOS
-    backgroundColor: 'rgba(45,45,45,0.94)',
+    backgroundColor: 'rgba(25,15,35,1)', // 'rgba(45,45,45,1)', //0.94
 
     // terminal selection color
     selectionColor: 'rgba(248,28,229,0.4)',
 
     // border color (window, tabs)
-    borderColor: '#333',
+    borderColor: 'yellow', //'rgba(248,28,229,0.4)', // '#333'
 
     // custom CSS to embed in the main window
     css: '',
@@ -79,7 +79,7 @@ module.exports = {
       black: '#000000',
       red: '#C51E14',
       green: '#1DC121',
-      yellow: '#C7C329',
+      yellow: '#C7F000', //'#EDEA61', //'#C7C329',
       blue: '#0A2FC4',
       magenta: 'rgba(240,80,150,1)', //#C839C5
       cyan: '#20C5C6',
@@ -87,7 +87,7 @@ module.exports = {
       lightBlack: '#686868',
       lightRed: '#FD6F6B',
       lightGreen: '#67F86F',
-      lightYellow: '#FFFA72',
+      lightYellow: '#FFC500', //'#FCF000', //'#FFFA72',
       lightBlue: '#6A76FB',
       lightMagenta: '#FD7CFC',
       lightCyan: '#68FDFE',
@@ -139,6 +139,16 @@ module.exports = {
     // Whether to use the WebGL renderer. Set it to false to use canvas-based
     // rendering (slower, but supports transparent backgrounds)
     webGLRenderer: true,
+    
+    hyperline: {                                                                 
+      plugins: [   
+        "hostname",                                                              
+        "ip",                                                                    
+        "cpu",       
+        "battery",
+        "network",
+      ]                                                                          
+    }, // [hostname, ip, memory, battery, cpu, network, spotify]
 
     // for advanced config flags please refer to https://hyper.is/#cfg
   },
@@ -149,7 +159,7 @@ module.exports = {
   //   `hyperpower`
   //   `@company/project`
   //   `project#1.0.1`
-  plugins: [],
+  plugins: ["hyperline"],
 
   // in development, you can create a directory under
   // `~/.hyper_plugins/local/` and include it here
