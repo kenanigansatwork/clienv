@@ -413,6 +413,10 @@
         fi
     fi
 
+    if [[ -x /usr/bin/mktemp ]]; then
+        alias tf='unset tf &> /dev/null; tf="$(mktemp)"; if [[ -z "${tf:-}" || ! -e "${tf}" ]]; then rm "${tf}" &> /dev/null; _err "unable to make temp file -- ${tf:-"<NULL>"}"; else echo "NEW EMPTY TEMP FILE: ${tf}"; fi;'
+    fi
+
     if [[ -x ~/bin/horizontal_rule ]]; then
         alias hr="\${HOME}/bin/horizontal_rule"
     fi
